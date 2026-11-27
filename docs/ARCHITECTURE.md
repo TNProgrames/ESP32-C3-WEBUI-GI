@@ -126,6 +126,6 @@ d:text(0, 0, "Hello")                                -- اسم الدالة + ا
 1. انسخ `drivers/lcd1602/` باسم جهازك.
 2. عدّل `open` (قراءة الإعداد وتهيئة الجهاز) وجدول الدوال.
 3. أضف اختبارًا في `tools/drv/test_drivers.py` (جهاز وهمي بسجلات) ثم `python3 tools/drv/build_index.py --version 1.0` و`python3 tools/drv/test_drivers.py`.
-4. للتطبيق: `apps/<name>.lua` + `.json` (+ `.html`) ثم أعد بناء الفهرس. يظهر في المتجر ويستعمله `drv.open`.
+4. للتطبيق: `drivers/apps/<name>.lua` + `.json` (+ `.html`) ثم أعد بناء الفهرس. يظهر في المتجر ويستعمله `drv.open`.
 
 حدود: درايفران مفتوحان لكل سكريبت، و4 درايفرات محمّلة معًا، وحجم الملف 24KB.

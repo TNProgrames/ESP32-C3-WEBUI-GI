@@ -1,0 +1,8 @@
+{
+  "title": "ميزان ميلان MPU6050",
+  "desc": "فقاعة ميزان على canvas وزوايا الميل مع معايرة الصفر.",
+  "driver": "mpu6050",
+  "icon": "compass",
+  "category": "sensors",
+  "page": true
+}

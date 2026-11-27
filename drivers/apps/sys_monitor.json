@@ -1,0 +1,8 @@
+{
+  "title": "مراقب النظام",
+  "desc": "الذاكرة الحرة وزمن التشغيل وإصدار النظام مباشرة.",
+  "drivers": [],
+  "icon": "gauge",
+  "category": "tools",
+  "page": false
+}

@@ -158,5 +158,73 @@
     <circle cx="12" cy="12" r="9.5" fill={mono ? 'currentColor' : '#3b82f6'} />
     <line x1="12" y1="11.2" x2="12" y2="16.5" stroke="#fff" stroke-width="2.3" stroke-linecap="round" />
     <circle cx="12" cy="7.8" r="1.2" fill="#fff" />
+  {:else if name === 'wave'}
+    <rect x="2.5" y="3.5" width="19" height="17" rx="3" fill={mono ? 'currentColor' : '#1e293b'} />
+    <rect x="4" y="5" width="16" height="14" rx="2" fill={mono ? 'rgba(255,255,255,.15)' : '#0f172a'} />
+    <path d="M4.5 12h3l2-5 3 10 2.5-6.5 1.8 1.5H19.5" stroke={mono ? '#fff' : '#22d3ee'} stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+  {:else if name === 'cloud-sun'}
+    <circle cx="16.2" cy="8.2" r="3.6" fill={mono ? 'currentColor' : '#fbbf24'} />
+    <path d="M16.2 2.6v1.4M21.8 8.2h-1.4M20.2 4.2l-1 1M20.2 12.2l-1-1" stroke={mono ? 'currentColor' : '#f59e0b'} stroke-width="1.9" stroke-linecap="round" />
+    <path d="M7.5 19.5h9a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 6.4 10.7a4.2 4.2 0 0 0 1.1 8.8Z" fill={mono ? 'currentColor' : '#38bdf8'} />
+  {:else if name === 'toggle'}
+    <rect x="2.5" y="4" width="19" height="7" rx="3.5" fill={mono ? 'currentColor' : '#10b981'} />
+    <circle cx="17.5" cy="7.5" r="2.5" fill={mono ? 'rgba(255,255,255,.8)' : '#ecfdf5'} />
+    <rect x="2.5" y="13" width="19" height="7" rx="3.5" fill={mono ? 'currentColor' : '#64748b'} />
+    <circle cx="6.5" cy="16.5" r="2.5" fill={mono ? 'rgba(255,255,255,.8)' : '#f1f5f9'} />
+  {:else if name === 'monitor'}
+    <rect x="2" y="4" width="20" height="13.5" rx="2.6" fill={mono ? 'currentColor' : '#0ea5e9'} />
+    <rect x="4" y="6" width="16" height="9.5" rx="1.4" fill={mono ? 'rgba(0,0,0,.25)' : '#0f766e'} />
+    <line x1="6" y1="9" x2="15" y2="9" stroke={mono ? '#fff' : '#6ee7b7'} stroke-width="2" stroke-linecap="round" />
+    <line x1="6" y1="12.5" x2="12" y2="12.5" stroke={mono ? '#fff' : '#a7f3d0'} stroke-width="2" stroke-linecap="round" />
+    <path d="M9 17.5h6l1 2.8H8l1-2.8Z" fill={mono ? 'currentColor' : '#38bdf8'} />
+  {:else if name === 'bulb'}
+    <path d="M12 2.5a6.5 6.5 0 0 0-4.2 11.4c.8.7 1.3 1.6 1.5 2.6h5.4c.2-1 .7-1.9 1.5-2.6A6.5 6.5 0 0 0 12 2.5Z" fill={mono ? 'currentColor' : '#fbbf24'} />
+    <circle cx="12" cy="8.5" r="2.4" fill={mono ? 'rgba(255,255,255,.45)' : '#fef3c7'} />
+    <rect x="9.2" y="17.2" width="5.6" height="2" rx="1" fill={mono ? 'currentColor' : '#94a3b8'} />
+    <rect x="10" y="20" width="4" height="1.8" rx="0.9" fill={mono ? 'currentColor' : '#64748b'} />
+  {:else if name === 'display'}
+    <rect x="2.5" y="4.5" width="19" height="15" rx="3" fill={mono ? 'currentColor' : '#6366f1'} />
+    <rect x="4.5" y="6.5" width="15" height="11" rx="1.8" fill={mono ? 'rgba(0,0,0,.3)' : '#1e1b4b'} />
+    <rect x="6.5" y="8.5" width="6" height="3" rx="0.8" fill={mono ? '#fff' : '#38bdf8'} />
+    <circle cx="16" cy="14" r="1.8" fill={mono ? '#fff' : '#22d3ee'} />
+    <line x1="6.5" y1="14.5" x2="12" y2="14.5" stroke={mono ? '#fff' : '#a5b4fc'} stroke-width="1.8" stroke-linecap="round" />
+  {:else if name === 'zap'}
+    <path d="M13.2 2.2 4.8 13h6.4l-1.4 8.8L19.2 10.8h-6.4l.4-8.6Z" fill={mono ? 'currentColor' : '#f59e0b'} />
+    <path d="M12.7 5.2 7.5 12h4.6l-.8 5.4 5.2-6.4h-4.6l.8-5.8Z" fill={mono ? 'rgba(255,255,255,.3)' : '#fde047'} />
+  {:else if name === 'sliders'}
+    <line x1="3" y1="6.5" x2="21" y2="6.5" stroke={mono ? 'currentColor' : '#94a3b8'} stroke-width="2.2" stroke-linecap="round" />
+    <circle cx="9" cy="6.5" r="2.8" fill={mono ? 'currentColor' : '#38bdf8'} />
+    <line x1="3" y1="12" x2="21" y2="12" stroke={mono ? 'currentColor' : '#94a3b8'} stroke-width="2.2" stroke-linecap="round" />
+    <circle cx="15.5" cy="12" r="2.8" fill={mono ? 'currentColor' : '#a855f7'} />
+    <line x1="3" y1="17.5" x2="21" y2="17.5" stroke={mono ? 'currentColor' : '#94a3b8'} stroke-width="2.2" stroke-linecap="round" />
+    <circle cx="11" cy="17.5" r="2.8" fill={mono ? 'currentColor' : '#10b981'} />
+  {:else if name === 'servo'}
+    <rect x="3" y="10" width="12" height="10.5" rx="2.5" fill={mono ? 'currentColor' : '#6366f1'} />
+    <circle cx="9" cy="15.2" r="2.4" fill={mono ? 'rgba(255,255,255,.35)' : '#c7d2fe'} />
+    <path d="M9 9V5.5h8.5a2 2 0 0 1 0 4H9Z" fill={mono ? 'currentColor' : '#f97316'} />
+    <circle cx="17.5" cy="7.5" r="1.4" fill={mono ? '#fff' : '#ffedd5'} />
+  {:else if name === 'droplet'}
+    <path d="M12 2.4S5.2 10 5.2 14.8a6.8 6.8 0 0 0 13.6 0C18.8 10 12 2.4 12 2.4Z" fill={mono ? 'currentColor' : '#0ea5e9'} />
+    <path d="M9.2 15.2a3.2 3.2 0 0 0 3.2 3.2" stroke={mono ? '#fff' : '#bae6fd'} stroke-width="2" stroke-linecap="round" />
+  {:else if name === 'timer'}
+    <rect x="9.5" y="2" width="5" height="2.2" rx="1" fill={mono ? 'currentColor' : '#f59e0b'} />
+    <path d="m17.5 5.2 1.8 1.8" stroke={mono ? 'currentColor' : '#fbbf24'} stroke-width="2.2" stroke-linecap="round" />
+    <circle cx="12" cy="13.2" r="8" fill={mono ? 'currentColor' : '#10b981'} />
+    <circle cx="12" cy="13.2" r="5.8" fill={mono ? 'rgba(255,255,255,.2)' : '#ecfdf5'} />
+    <path d="M12 9.5v4l2.8 1.8" stroke={mono ? '#fff' : '#047857'} stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+  {:else if name === 'gauge'}
+    <path d="M3.5 16.5a8.5 8.5 0 1 1 17 0" stroke={mono ? 'currentColor' : '#38bdf8'} stroke-width="3" stroke-linecap="round" />
+    <path d="M14.5 7.2a8.5 8.5 0 0 1 6 9.3" stroke={mono ? 'currentColor' : '#10b981'} stroke-width="3" stroke-linecap="round" />
+    <path d="m12 15.5 4.2-4.8" stroke={mono ? 'currentColor' : '#f43f5e'} stroke-width="2.4" stroke-linecap="round" />
+    <circle cx="12" cy="16" r="2.3" fill={mono ? 'currentColor' : '#6366f1'} />
+  {:else if name === 'compass'}
+    <circle cx="12" cy="12" r="9.5" fill={mono ? 'currentColor' : '#0284c7'} />
+    <circle cx="12" cy="12" r="6.8" fill={mono ? 'rgba(255,255,255,.18)' : '#e0f2fe'} />
+    <path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1 5.1-2.1Z" fill={mono ? '#fff' : '#ef4444'} />
+    <circle cx="12" cy="12" r="1.2" fill={mono ? 'rgba(0,0,0,.4)' : '#fff'} />
+  {:else if name === 'weather'}
+    <circle cx="15.8" cy="7.5" r="3.2" fill={mono ? 'currentColor' : '#fbbf24'} />
+    <path d="M7 16.5h9.5a3.5 3.5 0 0 0 .5-7A5 5 0 0 0 7.4 8.8 3.8 3.8 0 0 0 7 16.5Z" fill={mono ? 'currentColor' : '#38bdf8'} />
+    <path d="M9 19l-1 2.5M13 19l-1 2.5M17 19l-1 2.5" stroke={mono ? 'currentColor' : '#0ea5e9'} stroke-width="2" stroke-linecap="round" />
   {/if}
 </svg>

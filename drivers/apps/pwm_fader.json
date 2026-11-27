@@ -1,0 +1,8 @@
+{
+  "title": "خافت PWM",
+  "desc": "منزلق سطوع وتردد لرجل GPIO5 (LED أو مروحة).",
+  "drivers": [],
+  "icon": "sliders",
+  "category": "tools",
+  "page": false
+}

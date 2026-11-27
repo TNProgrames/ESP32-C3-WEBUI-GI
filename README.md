@@ -84,8 +84,8 @@ src/
   drv_vm.*       # مفسّر RV32IM
 web/             # مصدر صفحات الطوارئ
 ui/              # مصدر الواجهة (Svelte)
-drivers/<name>/  # مصدر الدرايفرات (C) ، drivers/apps/ الناتج والفهرس والتطبيقات
-apps/            # تطبيقات المتجر (lua + json + html)
+drivers/<name>/  # مصدر الدرايفرات (C)
+drivers/apps/    # ناتج الدرايفرات والفهرس + تطبيقات المتجر (lua + json + html)
 tools/           # بناء الدرايفرات والفهرس والاختبارات وgen_em.py
 docs/            # التوثيق
 ```

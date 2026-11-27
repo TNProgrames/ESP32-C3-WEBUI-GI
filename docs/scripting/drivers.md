@@ -150,8 +150,8 @@ lcd:close()                                               -- اختياري: ي�
 - الدالة `require` تعمل فقط على `/scripts/lib/`، ولا تقرأ أي ملف آخر.
 - مكتبة `util` التجريبية في أمثلة المختبر: «Library: util (save as lib)» ثم «Use library: util».
 
-## تطبيقات المتجر (`apps/`)
-التطبيق = `apps/<name>.lua` + `apps/<name>.json` (`title, desc, icon, category, driver|drivers, page`) + `apps/<name>.html` اختياري.
+## تطبيقات المتجر (`drivers/apps/`)
+التطبيق = `drivers/apps/<name>.lua` + `drivers/apps/<name>.json` (`title, desc, icon, category, driver|drivers, page`) + `drivers/apps/<name>.html` اختياري.
 - الصفحة HTML/canvas (≤24KB) تتحكم بعلب div وتتواصل مع السكريبت عبر `esp.on / esp.send` فقط (انظر `ui.md`).
 - `build_index.py` يضيفها إلى `index.json` (`apps[]`: `file, page_file, drivers, category, sha256, page_sha256`).
 - إن لم تكفِ خانات الدرايفرات (4 كحد أقصى) تظهر نافذة تعرض: الأماكن الكلية والمستعملة والمتبقية والمطلوبة، ويختار المستخدم ما يحذفه ثم يكتمل التثبيت.

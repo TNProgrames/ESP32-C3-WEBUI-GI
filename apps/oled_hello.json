@@ -1,1 +1,0 @@
-{"title": "OLED SSD1306", "desc": "يرسم إطارًا ونصًا وزمن التشغيل على شاشة OLED 128×64.", "driver": "ssd1306", "icon": "🖥️", "category": "display", "page": false}

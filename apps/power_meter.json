@@ -1,1 +1,0 @@
-{"title": "قياس الطاقة INA219", "desc": "جهد وتيار وقدرة مع عدّاد طاقة mWh ورسم حيّ.", "driver": "ina219", "icon": "⚡", "category": "sensors", "page": true}

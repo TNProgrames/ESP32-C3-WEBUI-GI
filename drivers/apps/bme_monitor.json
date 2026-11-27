@@ -1,0 +1,8 @@
+{
+  "title": "مراقب BME280",
+  "desc": "بطاقات الحرارة والضغط والرطوبة مع رسم حرارة حي على canvas.",
+  "driver": "bme280",
+  "icon": "cloud-sun",
+  "category": "sensors",
+  "page": true
+}

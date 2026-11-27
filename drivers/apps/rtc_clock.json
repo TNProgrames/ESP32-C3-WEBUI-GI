@@ -1,0 +1,8 @@
+{
+  "title": "ساعة DS3231",
+  "desc": "ساعة تماثلية على canvas مع التاريخ والحرارة، وزر لضبط الوقت من المتصفح.",
+  "driver": "ds3231",
+  "icon": "clock",
+  "category": "time",
+  "page": true
+}

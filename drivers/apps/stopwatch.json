@@ -1,0 +1,8 @@
+{
+  "title": "ساعة إيقاف",
+  "desc": "ساعة إيقاف مع تسجيل لفّات (Lap).",
+  "drivers": [],
+  "icon": "timer",
+  "category": "time",
+  "page": false
+}

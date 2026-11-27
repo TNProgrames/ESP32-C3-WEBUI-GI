@@ -1,1 +1,0 @@
-{"title": "ساعة على LCD1602", "desc": "تعرض زمن تشغيل الجهاز على شاشة حروف 16×2 (I2C، عنوان 0x27).", "driver": "lcd1602", "icon": "🔢", "category": "display", "page": false}

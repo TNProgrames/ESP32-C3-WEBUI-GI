@@ -28,7 +28,13 @@
   });
   const have = (d) => installed.some((i) => i.name === d);
 
+  const ICONS = new Set([
+    'activity', 'wave', 'thermometer', 'cloud-sun', 'toggle', 'cpu',
+    'monitor', 'bulb', 'display', 'zap', 'sliders', 'clock', 'servo',
+    'droplet', 'timer', 'gauge', 'compass', 'weather', 'layers', 'wrench', 'box'
+  ]);
   function appIcon(a) {
+    if (a.icon && ICONS.has(a.icon)) return a.icon;
     const c = a.category || 'tools';
     if (c === 'sensors') return 'thermometer';
     if (c === 'display') return 'layers';

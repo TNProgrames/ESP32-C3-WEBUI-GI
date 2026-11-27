@@ -1,0 +1,8 @@
+{
+  "title": "مراقب SHT31 + نقطة الندى",
+  "desc": "حرارة ورطوبة عالية الدقة مع حساب نقطة الندى ورسم حيّ.",
+  "driver": "sht31",
+  "icon": "droplet",
+  "category": "sensors",
+  "page": true
+}

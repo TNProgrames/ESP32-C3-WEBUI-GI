@@ -7,7 +7,7 @@
       "api": 2,
       "size": 1760,
       "mem": 1588,
-      "sha256": "509c76a0f597e057675e3ce52848580e45ebb6bba27dabd1f5cd56975b3bb71b",
+      "sha256": "d2bd89a20c762ba4b01a7a48a0f46a490bd7f559de240a029c2d776c0267d336",
       "file": "ads1115.drv",
       "info": "ADS1115 16-bit ADC (I2C)",
       "methods": [
@@ -27,7 +27,7 @@
       "api": 2,
       "size": 1732,
       "mem": 1560,
-      "sha256": "eb9ddd9a73ea4d7084ea0e897d04b65aad16122277c1c55585582822376f4198",
+      "sha256": "626410d58850c0d6ddff56dd6ca385ecaaad1c86e1b4ed1601ff1ad36c939bfb",
       "file": "aht20.drv",
       "info": "AHT20 temp/hum (I2C)",
       "methods": [
@@ -47,7 +47,7 @@
       "api": 2,
       "size": 1576,
       "mem": 1404,
-      "sha256": "474e1ffe29c1feddc4c166fd33b266573eff657301f34c188a1eef7fc65f3711",
+      "sha256": "9b3d5a6bc8ae2949ca43a6b56ad184163646786ef53ebcff12268938c2347995",
       "file": "bh1750.drv",
       "info": "BH1750 light sensor (I2C)",
       "methods": [
@@ -67,7 +67,7 @@
       "api": 2,
       "size": 3644,
       "mem": 3460,
-      "sha256": "adb967b2a6ccd68c9e5faf691543fdfd2f75b77d4cc3a71b7ac69971a18dbf96",
+      "sha256": "66ac83811056fbeb6c19e04c66d00e7cf8c284b18a4b1a3e8fbbe39cfcb8efca",
       "file": "bme280.drv",
       "info": "BME280/BMP280 temp/press/hum (I2C)",
       "methods": [
@@ -91,7 +91,7 @@
       "api": 2,
       "size": 2232,
       "mem": 2048,
-      "sha256": "2e83af144c6792c8cd0e17e6d718d9e93d7ca9aee4c3ec93f3a18ed39cd8da6f",
+      "sha256": "a1b6f482559a00160c773bebfe2266f586b2a00842bed983f126312227647e99",
       "file": "ds3231.drv",
       "info": "DS3231 RTC (I2C)",
       "methods": [
@@ -115,7 +115,7 @@
       "api": 2,
       "size": 1536,
       "mem": 1376,
-      "sha256": "9e2b86fd853d0a3b51772727e827ec59feac8efacb6edc16b5e391e4baa95716",
+      "sha256": "8647152e78b900cc86afe199fd866c6e561b44ee0f5c2bbc7070c39740f76892",
       "file": "ina219.drv",
       "info": "INA219 current/power (I2C)",
       "methods": [
@@ -131,7 +131,7 @@
       "api": 2,
       "size": 2580,
       "mem": 2384,
-      "sha256": "10c301eeada75638cb2341b2a660afade5436cd31c0dc129c8e02d4bb4a5b83b",
+      "sha256": "b3154895b3ea717dcd9b8bd21d2e4c07c7bbd1cdfbd745ebce996dcc841b0c3a",
       "file": "lcd1602.drv",
       "info": "HD44780 16x2 via PCF8574 (I2C)",
       "methods": [
@@ -159,7 +159,7 @@
       "api": 2,
       "size": 1736,
       "mem": 1564,
-      "sha256": "ca4e76abdd4b5f2b0a91125266fb29ff42e709bda5f89abf93a8950220a61559",
+      "sha256": "0a644cf20e7444b238f82107040c7d4134207f7d27c6695eaab55ebe524ec80b",
       "file": "mpu6050.drv",
       "info": "MPU6050 accel/gyro (I2C)",
       "methods": [
@@ -179,7 +179,7 @@
       "api": 2,
       "size": 2288,
       "mem": 2092,
-      "sha256": "1349eb06796d07c486507d7196fcb8ce7b9bf3dc8028b6c907238bf16ef8d361",
+      "sha256": "3834bd7cc5979f2c351d5c4fef42bb90fbdc0a22e1f0486644dd181a5136d169",
       "file": "pca9685.drv",
       "info": "PCA9685 16-ch PWM/servo (I2C)",
       "methods": [
@@ -207,7 +207,7 @@
       "api": 2,
       "size": 1816,
       "mem": 1620,
-      "sha256": "7c616fc02fd663c0ca71c00cc571e886c12fbd4761da8bc9d49348960cf23dea",
+      "sha256": "febb8856fb13f8a041103c5f3403670f9f9f67cc7c6255a323b4082cf1586672",
       "file": "pcf8574.drv",
       "info": "PCF8574 8-bit I/O expander (I2C)",
       "methods": [
@@ -235,7 +235,7 @@
       "api": 2,
       "size": 1700,
       "mem": 1528,
-      "sha256": "d6e4ad1f0714f0eb248375d23d577b4e854fd68f1c9514060285a1137835e51a",
+      "sha256": "460dbd66a8b9dab93555f888b04e21aef30b530c35e1772ea32583fdbcb753ec",
       "file": "sht31.drv",
       "info": "SHT3x temp/hum (I2C)",
       "methods": [
@@ -255,7 +255,7 @@
       "api": 2,
       "size": 6276,
       "mem": 6008,
-      "sha256": "bfcea6d57e9fd428a6109c39621127be798ee00c4d633fe4499eb9fbfc2dea5e",
+      "sha256": "d4387fef247fcff859834e7a0efcd3bfc8ac9a6432a1c1a00c45a3f0f106e17c",
       "file": "ssd1306.drv",
       "info": "SSD1306/SH1106 OLED 128x64 (I2C)",
       "methods": [
@@ -307,7 +307,7 @@
       "api": 2,
       "size": 5148,
       "mem": 4928,
-      "sha256": "c6f33cb8cf11306b5dd4afa046b7e88cf8caac1c6fa7497f85d5fb1549c44403",
+      "sha256": "88b28b1c1d90b76f620de1186b3c7b04912247d6bf9a60dc9a4ccca31a7253e1",
       "file": "st7789.drv",
       "info": "ST7789 color TFT strip renderer (SPI)",
       "methods": [
@@ -343,7 +343,7 @@
       "name": "adc_meter",
       "title": "فولتميتر ADC",
       "desc": "قراءة جهد 4 مداخل تماثلية GPIO0–3 بالمللي فولت مع أشرطة.",
-      "icon": "📟",
+      "icon": "activity",
       "category": "sensors",
       "driver": "",
       "drivers": [],
@@ -355,7 +355,7 @@
       "name": "adc_scope",
       "title": "راسم إشارة ADS1115",
       "desc": "راسم إشارة على canvas لقناة من 4 قنوات 16 بت، مع اختيار القناة والمدى.",
-      "icon": "📈",
+      "icon": "wave",
       "category": "tools",
       "driver": "ads1115",
       "drivers": [
@@ -372,7 +372,7 @@
       "name": "aht_dash",
       "title": "لوحة حرارة ورطوبة AHT20",
       "desc": "بطاقات حيّة ورسم بياني على canvas للحرارة والرطوبة، مع اختيار فترة القياس.",
-      "icon": "🌡️",
+      "icon": "thermometer",
       "category": "sensors",
       "driver": "aht20",
       "drivers": [
@@ -389,7 +389,7 @@
       "name": "bme_monitor",
       "title": "مراقب BME280",
       "desc": "بطاقات الحرارة والضغط والرطوبة مع رسم حرارة حي على canvas.",
-      "icon": "🌤️",
+      "icon": "cloud-sun",
       "category": "sensors",
       "driver": "bme280",
       "drivers": [
@@ -406,7 +406,7 @@
       "name": "gpio_panel",
       "title": "لوحة أرجل GPIO",
       "desc": "مفاتيح لأربع أرجل خرج (4,5,6,7) مع حفظ الحالة.",
-      "icon": "🎛️",
+      "icon": "toggle",
       "category": "tools",
       "driver": "",
       "drivers": [],
@@ -418,7 +418,7 @@
       "name": "io_expander",
       "title": "موسّع أرجل PCF8574",
       "desc": "8 أرجل إضافية: مفاتيح تبديل لكل رجل مع عرض الحالة الفعلية.",
-      "icon": "🔘",
+      "icon": "cpu",
       "category": "tools",
       "driver": "pcf8574",
       "drivers": [
@@ -435,7 +435,7 @@
       "name": "lcd_clock",
       "title": "ساعة على LCD1602",
       "desc": "تعرض زمن تشغيل الجهاز على شاشة حروف 16×2 (I2C، عنوان 0x27).",
-      "icon": "🔢",
+      "icon": "monitor",
       "category": "display",
       "driver": "lcd1602",
       "drivers": [
@@ -449,7 +449,7 @@
       "name": "light_meter",
       "title": "مقياس الإضاءة BH1750",
       "desc": "عدّاد قوس على canvas بمقياس لوغاريتمي مع أدنى وأعلى قيمة ووصف مستوى الإضاءة.",
-      "icon": "💡",
+      "icon": "bulb",
       "category": "sensors",
       "driver": "bh1750",
       "drivers": [
@@ -466,7 +466,7 @@
       "name": "oled_hello",
       "title": "OLED SSD1306",
       "desc": "يرسم إطارًا ونصًا وزمن التشغيل على شاشة OLED 128×64.",
-      "icon": "🖥️",
+      "icon": "display",
       "category": "display",
       "driver": "ssd1306",
       "drivers": [
@@ -480,7 +480,7 @@
       "name": "power_meter",
       "title": "قياس الطاقة INA219",
       "desc": "جهد وتيار وقدرة مع عدّاد طاقة mWh ورسم حيّ.",
-      "icon": "⚡",
+      "icon": "zap",
       "category": "sensors",
       "driver": "ina219",
       "drivers": [
@@ -497,7 +497,7 @@
       "name": "pwm_fader",
       "title": "خافت PWM",
       "desc": "منزلق سطوع وتردد لرجل GPIO5 (LED أو مروحة).",
-      "icon": "🌗",
+      "icon": "sliders",
       "category": "tools",
       "driver": "",
       "drivers": [],
@@ -509,7 +509,7 @@
       "name": "rtc_clock",
       "title": "ساعة DS3231",
       "desc": "ساعة تماثلية على canvas مع التاريخ والحرارة، وزر لضبط الوقت من المتصفح.",
-      "icon": "🕒",
+      "icon": "clock",
       "category": "time",
       "driver": "ds3231",
       "drivers": [
@@ -526,7 +526,7 @@
       "name": "servo_ctrl",
       "title": "تحكم سيرفو PCA9685",
       "desc": "4 مفاصل سيرفو بمنزلقات زاوية 0–180° ومنتصف سريع.",
-      "icon": "🦾",
+      "icon": "servo",
       "category": "tools",
       "driver": "pca9685",
       "drivers": [
@@ -543,7 +543,7 @@
       "name": "sht_monitor",
       "title": "مراقب SHT31 + نقطة الندى",
       "desc": "حرارة ورطوبة عالية الدقة مع حساب نقطة الندى ورسم حيّ.",
-      "icon": "💧",
+      "icon": "droplet",
       "category": "sensors",
       "driver": "sht31",
       "drivers": [
@@ -560,7 +560,7 @@
       "name": "stopwatch",
       "title": "ساعة إيقاف",
       "desc": "ساعة إيقاف مع تسجيل لفّات (Lap).",
-      "icon": "⏱️",
+      "icon": "timer",
       "category": "time",
       "driver": "",
       "drivers": [],
@@ -572,7 +572,7 @@
       "name": "sys_monitor",
       "title": "مراقب النظام",
       "desc": "الذاكرة الحرة وزمن التشغيل وإصدار النظام مباشرة.",
-      "icon": "🖥️",
+      "icon": "gauge",
       "category": "tools",
       "driver": "",
       "drivers": [],
@@ -584,7 +584,7 @@
       "name": "tilt_level",
       "title": "ميزان ميلان MPU6050",
       "desc": "فقاعة ميزان على canvas وزوايا الميل مع معايرة الصفر.",
-      "icon": "🎯",
+      "icon": "compass",
       "category": "sensors",
       "driver": "mpu6050",
       "drivers": [
@@ -601,7 +601,7 @@
       "name": "weather_station",
       "title": "محطة طقس (درايفران)",
       "desc": "SHT31 + BH1750 معًا في سكريبت واحد: حرارة ورطوبة وضوء ونقطة الندى مع رسم حيّ.",
-      "icon": "🌦️",
+      "icon": "weather",
       "category": "sensors",
       "driver": "sht31",
       "drivers": [
