@@ -141,19 +141,32 @@
             overflow: hidden;
         }
         .modal-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        textarea { flex: 1; background: #06090f; color: #10b981; border: none; padding: 18px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; resize: none; outline: none; }
-        [data-theme="light"] textarea { background: #fff; color: #047857; }
         .ed-tools { display: flex; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--border); align-items: center; flex-wrap: wrap; background: var(--panel-2); }
         .ed-tools .btn { padding: 6px 10px; font-size: 12px; }
+        .ed-select { padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--input); color: var(--text); font-size: 12px; font-weight: 600; outline: none; cursor: pointer; }
+        .ed-select:focus { border-color: var(--primary); }
         .find-wrap { position: relative; flex: 1; min-width: 110px; max-width: 240px; display: flex; align-items: center; }
         .find-wrap svg { position: absolute; left: 9px; color: var(--muted); pointer-events: none; }
         .ed-tools input { width: 100%; padding: 6px 10px 6px 28px; border-radius: 8px; border: 1px solid var(--border); background: var(--input); color: var(--text); outline: none; direction: ltr; font-size: 12.5px; }
         .ed-tools input:focus { border-color: var(--primary); }
-        .ed-body { flex: 1; display: flex; min-height: 0; background: #06090f; direction: ltr; }
-        [data-theme="light"] .ed-body { background: #fff; }
-        #ed-gutter { margin: 0; padding: 18px 8px 18px 12px; text-align: right; color: var(--muted); font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; user-select: none; overflow: hidden; min-width: 44px; border-right: 1px solid var(--border); }
-        .ed-body textarea { line-height: 1.5; tab-size: 2; white-space: pre; overflow: auto; direction: ltr; text-align: left; }
-        .ed-body textarea.wrap { white-space: pre-wrap; word-break: break-word; }
+        .ed-body { flex: 1; display: flex; min-height: 0; background: #06090f; direction: ltr; --ed-fg: #e2e8f0; --ed-caret: #f8fafc; --tk-c: #64748b; --tk-s: #4ade80; --tk-n: #fb923c; --tk-k: #c084fc; --tk-t: #f472b6; --tk-f: #38bdf8; --tk-p: #fbbf24; }
+        [data-theme="light"] .ed-body { background: #fff; --ed-fg: #1e293b; --ed-caret: #0f172a; --tk-c: #6b7280; --tk-s: #16a34a; --tk-n: #ea580c; --tk-k: #7c3aed; --tk-t: #db2777; --tk-f: #0284c7; --tk-p: #b45309; }
+        #ed-gutter { margin: 0; padding: 18px 8px 18px 12px; text-align: right; color: var(--muted); font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; user-select: none; overflow: hidden; min-width: 44px; border-right: 1px solid var(--border); }
+        .ed-stage { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
+        .ed-layer { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 18px; border: none; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 14px; line-height: 1.5; tab-size: 2; -moz-tab-size: 2; letter-spacing: 0; word-spacing: 0; font-variant-ligatures: none; white-space: pre; overflow: auto; direction: ltr; text-align: left; scrollbar-width: thin; }
+        .ed-layer.wrap { white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; overflow-x: hidden; }
+        .ed-layer::-webkit-scrollbar { width: 8px; height: 8px; }
+        #ed-hl { z-index: 1; pointer-events: none; color: var(--ed-fg); background: transparent; scrollbar-color: transparent transparent; }
+        #ed-hl::-webkit-scrollbar, #ed-hl::-webkit-scrollbar-thumb { background: transparent; }
+        #editor-content { z-index: 2; background: transparent; color: transparent; caret-color: var(--ed-caret); resize: none; outline: none; }
+        #editor-content::selection { background: rgba(99, 102, 241, 0.34); color: transparent; }
+        .tk-c { color: var(--tk-c); font-style: italic; }
+        .tk-s { color: var(--tk-s); }
+        .tk-n { color: var(--tk-n); }
+        .tk-k { color: var(--tk-k); font-weight: 600; }
+        .tk-t { color: var(--tk-t); }
+        .tk-f { color: var(--tk-f); }
+        .tk-p { color: var(--tk-p); }
         .ed-status { display: flex; justify-content: space-between; padding: 5px 16px; font: 11px monospace; color: var(--muted); border-top: 1px solid var(--border); direction: ltr; background: var(--panel-2); }
         .dot { display: none; width: 7px; height: 7px; border-radius: 50%; background: var(--warning); margin-inline-start: 6px; vertical-align: middle; }
 
@@ -268,6 +281,17 @@
                     <svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input id="ed-find" placeholder="Find..." onkeydown="if(event.key==='Enter'){event.preventDefault();edFind(event.shiftKey)}">
                 </div>
+                <select id="ed-lang" class="ed-select" onchange="edSetLang(this.value)" aria-label="syntax language">
+                    <option value="plain">Text</option>
+                    <option value="lua">Lua</option>
+                    <option value="json">JSON</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="js">JS</option>
+                    <option value="python">Python</option>
+                    <option value="c">C</option>
+                    <option value="cpp">C++</option>
+                </select>
                 <button class="btn btn-ghost icon-btn" onclick="edFind(false)" aria-label="next">
                     <svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
                 </button>
@@ -277,7 +301,10 @@
             </div>
             <div class="ed-body">
                 <pre id="ed-gutter" aria-hidden="true">1</pre>
-                <textarea id="editor-content" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea>
+                <div class="ed-stage">
+                    <pre id="ed-hl" class="ed-layer" aria-hidden="true"></pre>
+                    <textarea id="editor-content" class="ed-layer" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea>
+                </div>
             </div>
             <div class="ed-status"><span id="ed-pos">1:1</span><span id="ed-info"></span></div>
             <div style="padding:12px 16px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px;">
@@ -622,26 +649,217 @@
 
         async function logout() { try { await fetch('/em/logout', { method: 'POST' }); } catch {} location.href = "/"; }
 
-        // ---- محرر الكود ----
+        // ---- محرر الكود + تلوين الصيغة ----
         const ta = () => document.getElementById('editor-content');
-        let edDirty = false, edFontSize = +(localStorage.getItem('em-font') || 14), edSaved = '';
+        const hl = () => document.getElementById('ed-hl');
+        let edDirty = false, edFontSize = +(localStorage.getItem('em-font') || 14), edSaved = '', edLang = 'plain';
+
+        const escHtml = s => s.replace(/[&<>]/g, c => c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;');
+        const sp = (c, s) => `<span class="tk-${c}">${escHtml(s)}</span>`;
+        const detectLang = p => {
+            const ext = (p.split('.').pop() || '').toLowerCase();
+            if (ext === 'html' || ext === 'htm' || ext === 'svg' || ext === 'xml') return 'html';
+            if (ext === 'js' || ext === 'mjs' || ext === 'cjs' || ext === 'ts') return 'js';
+            if (ext === 'json') return 'json';
+            if (ext === 'lua') return 'lua';
+            if (ext === 'py') return 'python';
+            if (ext === 'css' || ext === 'scss') return 'css';
+            if (ext === 'c' || ext === 'h') return 'c';
+            if (ext === 'cpp' || ext === 'cc' || ext === 'cxx' || ext === 'hpp' || ext === 'hh' || ext === 'ino') return 'cpp';
+            return 'plain';
+        };
+
+        const KW = {
+            lua: new Set('and,break,do,else,elseif,end,for,function,goto,if,in,local,not,or,repeat,return,then,until,while'.split(',')),
+            luaLit: new Set(['true', 'false', 'nil']),
+            luaBi: new Set('print,pairs,ipairs,next,type,tonumber,tostring,error,pcall,xpcall,require,select,unpack,rawget,rawset,setmetatable,getmetatable,math,string,table,coroutine,utf8,os,io,gpio,adc,pwm,timer,sys,ui,drv,bus,storage'.split(',')),
+            py: new Set('and,as,assert,async,await,break,class,continue,def,del,elif,else,except,finally,for,from,global,if,import,in,is,lambda,nonlocal,not,or,pass,raise,return,try,while,with,yield,match,case'.split(',')),
+            pyLit: new Set(['True', 'False', 'None']),
+            pyBi: new Set('abs,all,any,bin,bool,bytes,bytearray,callable,chr,dict,dir,divmod,enumerate,eval,exec,filter,float,format,frozenset,getattr,globals,hasattr,hash,hex,id,input,int,isinstance,issubclass,iter,len,list,locals,map,max,min,next,object,oct,open,ord,pow,print,property,range,repr,reversed,round,set,setattr,slice,sorted,staticmethod,str,sum,super,tuple,type,vars,zip,self,cls'.split(',')),
+            js: new Set('async,await,break,case,catch,class,const,continue,debugger,default,delete,do,else,export,extends,finally,for,from,function,if,import,in,instanceof,let,new,of,return,static,super,switch,this,throw,try,typeof,var,void,while,with,yield,as,type,interface,enum,implements'.split(',')),
+            jsLit: new Set(['true', 'false', 'null', 'undefined', 'NaN', 'Infinity']),
+            jsBi: new Set('Array,Boolean,Date,Error,Function,JSON,Map,Math,Number,Object,Promise,RegExp,Set,String,Symbol,console,document,window,fetch,localStorage,URL,FormData,XMLHttpRequest'.split(',')),
+            c: new Set('auto,break,case,const,continue,default,do,else,enum,extern,for,goto,if,inline,register,restrict,return,sizeof,static,struct,switch,typedef,union,volatile,while,_Alignas,_Alignof,_Atomic,_Bool,_Complex,_Generic,_Imaginary,_Noreturn,_Static_assert,_Thread_local'.split(',')),
+            cpp: new Set('alignas,alignof,and,asm,auto,bitand,bitor,break,case,catch,class,compl,concept,const,consteval,constexpr,constinit,const_cast,continue,co_await,co_return,co_yield,decltype,default,delete,do,dynamic_cast,else,enum,explicit,export,extern,final,for,friend,goto,if,inline,mutable,namespace,new,noexcept,not,operator,or,override,private,protected,public,register,reinterpret_cast,requires,return,sizeof,static,static_assert,static_cast,struct,switch,template,this,thread_local,throw,try,typedef,typeid,typename,union,using,virtual,volatile,while,xor'.split(',')),
+            cLit: new Set(['true', 'false', 'nullptr', 'NULL']),
+            cBi: new Set('void,char,short,int,long,float,double,signed,unsigned,bool,size_t,ssize_t,ptrdiff_t,int8_t,int16_t,int32_t,int64_t,uint8_t,uint16_t,uint32_t,uint64_t,uintptr_t,intptr_t,FILE,String,JsonDocument,JsonArray,JsonObject,File,SemaphoreHandle_t,std,vector,string'.split(','))
+        };
+
+        function tokScan(code, rules) {
+            let out = '', i = 0, n = code.length;
+            while (i < n) {
+                let matched = false;
+                for (let r = 0; r < rules.length; r++) {
+                    const re = rules[r][0];
+                    re.lastIndex = i;
+                    const m = re.exec(code);
+                    if (m) {
+                        const cls = typeof rules[r][1] === 'function' ? rules[r][1](m[0], code, i + m[0].length) : rules[r][1];
+                        out += cls ? sp(cls, m[0]) : escHtml(m[0]);
+                        i += m[0].length;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) { out += escHtml(code[i]); i++; }
+            }
+            return out;
+        }
+
+        function hlCode(code, lang) {
+            if (!code || lang === 'plain' || code.length > 120000) return escHtml(code);
+            const afterCall = (code, end) => /^\s*\(/.test(code.slice(end, end + 16));
+            const numRe = /(?:0[xXbBoO][0-9a-fA-F_]+|\d[\d_]*(?:\.[\d_]*)?(?:[eE][+-]?\d+)?)[uUlLfFnNjJ]*/y;
+            const idRe = /[A-Za-z_]\w*/y;
+            const wsRe = /\s+/y;
+
+            if (lang === 'json') {
+                return tokScan(code, [
+                    [wsRe, null],
+                    [/"(?:\\.|[^"\\\n])*"(?=\s*:)/y, 'p'],
+                    [/"(?:\\.|[^"\\\n])*"/y, 's'],
+                    [/-?(?:\d+\.\d+|\d+)(?:[eE][+-]?\d+)?/y, 'n'],
+                    [/\b(?:true|false|null)\b/y, 'n']
+                ]);
+            }
+            if (lang === 'lua') {
+                return tokScan(code, [
+                    [wsRe, null],
+                    [/--\[(=*)\[[\s\S]*?(?:\]\1\]|$)/y, 'c'],
+                    [/--[^\n]*/y, 'c'],
+                    [/\[(=*)\[[\s\S]*?(?:\]\1\]|$)/y, 's'],
+                    [/"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'/y, 's'],
+                    [numRe, 'n'],
+                    [idRe, (w, src, end) => KW.lua.has(w) ? 'k' : KW.luaLit.has(w) ? 'n' : KW.luaBi.has(w) ? 't' : afterCall(src, end) ? 'f' : null]
+                ]);
+            }
+            if (lang === 'python') {
+                return tokScan(code, [
+                    [wsRe, null],
+                    [/#[^\n]*/y, 'c'],
+                    [/[frubFRUB]{0,2}(?:"""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$))/y, 's'],
+                    [/[frubFRUB]{0,2}(?:"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')/y, 's'],
+                    [/@[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*/y, 'p'],
+                    [numRe, 'n'],
+                    [idRe, (w, src, end) => KW.py.has(w) ? 'k' : KW.pyLit.has(w) ? 'n' : KW.pyBi.has(w) ? 't' : afterCall(src, end) ? 'f' : null]
+                ]);
+            }
+            if (lang === 'js') {
+                return tokScan(code, [
+                    [wsRe, null],
+                    [/\/\*[\s\S]*?(?:\*\/|$)|\/\/[^\n]*/y, 'c'],
+                    [/`(?:\\.|[^`\\])*`|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'/y, 's'],
+                    [numRe, 'n'],
+                    [idRe, (w, src, end) => KW.js.has(w) ? 'k' : KW.jsLit.has(w) ? 'n' : KW.jsBi.has(w) ? 't' : afterCall(src, end) ? 'f' : null]
+                ]);
+            }
+            if (lang === 'c' || lang === 'cpp') {
+                const kws = lang === 'cpp' ? KW.cpp : KW.c;
+                return tokScan(code, [
+                    [wsRe, null],
+                    [/\/\*[\s\S]*?(?:\*\/|$)|\/\/[^\n]*/y, 'c'],
+                    [/^[ \t]*#[^\n]*/my, 'p'],
+                    [/[LuU]?"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'/y, 's'],
+                    [numRe, 'n'],
+                    [idRe, (w, src, end) => kws.has(w) ? 'k' : KW.cLit.has(w) ? 'n' : KW.cBi.has(w) ? 't' : afterCall(src, end) ? 'f' : null]
+                ]);
+            }
+            if (lang === 'css') {
+                let depth = 0, out = '', i = 0, n = code.length;
+                const cRe = /\/\*[\s\S]*?(?:\*\/|$)/y, sRe = /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'/y;
+                const atRe = /@[A-Za-z_-][\w-]*/y, colRe = /#[0-9a-fA-F]{3,8}\b/y;
+                const cssNumRe = /-?(?:\d+\.\d+|\d+|\.\d+)(?:[a-zA-Z%]+)?/y;
+                const propRe = /[A-Za-z_-][\w-]*(?=\s*:)/y, selRe = /[.#:]?[A-Za-z_-][\w-]*/y;
+                while (i < n) {
+                    const ch = code[i];
+                    if (ch === '{') { depth++; out += '{'; i++; continue; }
+                    if (ch === '}') { depth = Math.max(0, depth - 1); out += '}'; i++; continue; }
+                    cRe.lastIndex = sRe.lastIndex = atRe.lastIndex = colRe.lastIndex = cssNumRe.lastIndex = propRe.lastIndex = selRe.lastIndex = i;
+                    let m;
+                    if ((m = cRe.exec(code))) out += sp('c', m[0]);
+                    else if ((m = sRe.exec(code))) out += sp('s', m[0]);
+                    else if ((m = atRe.exec(code))) out += sp('p', m[0]);
+                    else if ((m = colRe.exec(code))) out += sp('n', m[0]);
+                    else if ((m = cssNumRe.exec(code))) out += sp('n', m[0]);
+                    else if (depth > 0 && (m = propRe.exec(code))) out += sp('f', m[0]);
+                    else if ((m = selRe.exec(code))) out += depth === 0 ? sp('t', m[0]) : (m[0] === 'important' ? sp('k', m[0]) : escHtml(m[0]));
+                    else { out += escHtml(ch); i++; continue; }
+                    i += m[0].length;
+                }
+                return out;
+            }
+            if (lang === 'html') {
+                const hlTagAttrs = s => tokScan(s, [
+                    [wsRe, null],
+                    [/"[^"]*"|'[^']*'/y, 's'],
+                    [/[A-Za-z_:][\w:.-]*(?=\s*=)/y, 'f'],
+                    [/[A-Za-z_:][\w:.-]*/y, 'f']
+                ]);
+                let out = '', i = 0, n = code.length;
+                const cmRe = /<!--[\s\S]*?(?:-->|$)/y, dtRe = /<![A-Za-z][^>]*>/y, entRe = /&[A-Za-z0-9#]+;/y;
+                const tagRe = /<(\/?)([A-Za-z][\w:-]*)((?:[^>"']|"[^"]*"|'[^']*')*)(\/?)>/y;
+                while (i < n) {
+                    cmRe.lastIndex = dtRe.lastIndex = entRe.lastIndex = tagRe.lastIndex = i;
+                    let m;
+                    if ((m = cmRe.exec(code))) { out += sp('c', m[0]); i += m[0].length; }
+                    else if ((m = dtRe.exec(code))) { out += sp('p', m[0]); i += m[0].length; }
+                    else if ((m = tagRe.exec(code))) {
+                        out += escHtml('<' + m[1]) + sp('t', m[2]) + hlTagAttrs(m[3]) + escHtml(m[4] + '>');
+                        i += m[0].length;
+                        const tag = m[2].toLowerCase();
+                        if (!m[1] && !m[4] && (tag === 'script' || tag === 'style')) {
+                            const closeRe = new RegExp(`</${tag}\\s*>`, 'i');
+                            const sub = code.slice(i), cm = closeRe.exec(sub);
+                            const endIdx = cm ? cm.index : sub.length;
+                            out += hlCode(sub.slice(0, endIdx), tag === 'script' ? 'js' : 'css');
+                            i += endIdx;
+                        }
+                    } else if ((m = entRe.exec(code))) { out += sp('n', m[0]); i += m[0].length; }
+                    else { out += escHtml(code[i]); i++; }
+                }
+                return out;
+            }
+            return escHtml(code);
+        }
+
         function setDirty(d) { edDirty = d; document.getElementById('ed-dirty').style.display = d ? 'inline-block' : 'none'; }
+        function edSyncScroll() {
+            const t = ta(), g = document.getElementById('ed-gutter'), h = hl();
+            g.scrollTop = t.scrollTop;
+            h.scrollTop = t.scrollTop;
+            h.scrollLeft = t.scrollLeft;
+        }
         function edGutter() {
             const n = ta().value.split('\n').length, g = document.getElementById('ed-gutter');
             if (g.dataset.n != n) { g.dataset.n = n; g.textContent = Array.from({ length: n }, (_, i) => i + 1).join('\n'); }
-            g.scrollTop = ta().scrollTop;
+            edSyncScroll();
         }
+        function edRender() {
+            const v = ta().value;
+            let html = hlCode(v, edLang);
+            if (v.endsWith('\n')) html += ' ';
+            hl().innerHTML = html;
+            edSyncScroll();
+        }
+        function edSetLang(l) { edLang = l; edRender(); }
         function edStatus() {
             const t = ta(), pre = t.value.slice(0, t.selectionStart).split('\n');
             document.getElementById('ed-pos').textContent = pre.length + ':' + (pre[pre.length - 1].length + 1);
             document.getElementById('ed-info').textContent = t.value.split('\n').length + ' ' + T('سطر') + ' · ' + t.value.length + ' B';
         }
         function edFont(d) { edFontSize = Math.max(10, Math.min(24, edFontSize + d)); localStorage.setItem('em-font', edFontSize); applyFont(); }
-        function applyFont() { ta().style.fontSize = edFontSize + 'px'; document.getElementById('ed-gutter').style.fontSize = edFontSize + 'px'; }
+        function applyFont() {
+            const sz = edFontSize + 'px';
+            ta().style.fontSize = sz;
+            hl().style.fontSize = sz;
+            document.getElementById('ed-gutter').style.fontSize = sz;
+        }
         function edWrap() {
             const on = ta().classList.toggle('wrap');
+            hl().classList.toggle('wrap', on);
             ta().setAttribute('wrap', on ? 'soft' : 'off');
             document.getElementById('ed-wrap').classList.toggle('btn-active', on);
+            edSyncScroll();
         }
         function edFind(back) {
             const q = document.getElementById('ed-find').value, t = ta(); if (!q) return;
@@ -656,11 +874,13 @@
         function openEditor(path, text) {
             document.getElementById('editor-title').innerText = path;
             const t = ta(); t.value = text; edSaved = text; setDirty(false);
-            t.classList.remove('wrap'); t.setAttribute('wrap', 'off');
+            edLang = detectLang(path);
+            document.getElementById('ed-lang').value = edLang;
+            t.classList.remove('wrap'); hl().classList.remove('wrap'); t.setAttribute('wrap', 'off');
             document.getElementById('ed-wrap').classList.remove('btn-active');
             applyFont();
             document.getElementById('editor-modal').style.display = 'flex';
-            edGutter(); edStatus(); t.scrollTop = 0; t.focus();
+            edRender(); edGutter(); edStatus(); t.scrollTop = 0; t.scrollLeft = 0; edSyncScroll(); t.focus();
         }
         async function closeEditor(force) {
             if (force !== true && edDirty) {
@@ -671,8 +891,8 @@
         }
         document.addEventListener('DOMContentLoaded', () => {
             const t = ta();
-            t.addEventListener('input', () => { setDirty(t.value !== edSaved); edGutter(); edStatus(); });
-            t.addEventListener('scroll', edGutter);
+            t.addEventListener('input', () => { setDirty(t.value !== edSaved); edRender(); edGutter(); edStatus(); });
+            t.addEventListener('scroll', edSyncScroll);
             ['keyup', 'click'].forEach(e => t.addEventListener(e, edStatus));
             t.addEventListener('keydown', e => {
                 if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); saveFile(); }
