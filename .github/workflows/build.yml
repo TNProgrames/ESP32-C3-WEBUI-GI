@@ -44,9 +44,12 @@ jobs:
           sudo apt-get install -y clang lld
           pip install platformio cryptography
 
-      # الدرايفرات المُودَعة في drivers/build (التي يجلبها متجر الواجهة) يجب أن تكون صالحة للتوقيع الحالي ونسخة الواجهة
-      - name: Verify committed drivers and store logic
+      # الدرايفرات في drivers/build (التي يجلبها متجر الواجهة)؛ إن لم تكن مودعة في المستودع تُبنى تلقائياً قبل التحقق
+      - name: Verify drivers and store logic
         run: |
+          if [ ! -f drivers/build/index.json ]; then
+            python3 tools/drv/build_index.py --version 1.0
+          fi
           python3 tools/drv/test_drivers.py drivers/build
           g++ -std=gnu++17 -O2 -Isrc tools/drv/test_vm.cpp src/drv_vm.cpp -o /tmp/test_vm
           /tmp/test_vm drivers/build/*.drv
