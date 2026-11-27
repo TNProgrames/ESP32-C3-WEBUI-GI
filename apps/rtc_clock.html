@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:var(--text);background:transparent}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:8px}
+.c{background:var(--panel);border:1px solid var(--border,#8884);border-radius:10px;padding:8px 10px}
+.c small{display:block;color:var(--muted);font-size:11px}.c b{font-size:22px}
+canvas{width:100%;display:block;background:var(--panel);border-radius:10px;border:1px solid var(--border,#8884)}
+button,select{font:inherit;padding:5px 10px;border-radius:8px;border:1px solid var(--border,#8886);background:var(--panel);color:var(--text)}
+.r{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+</style></head><body><canvas id="cv"></canvas>
+<div class="g" style="margin-top:8px"><div class="c"><small id="ld"></small><b id="vd" style="font-size:16px">--</b></div><div class="c"><small id="lc"></small><b id="vc">--</b></div></div>
+<div class="r"><button id="sy"></button><span id="er" style="color:#e55"></span></div><script>
+const $=id=>document.getElementById(id), AR=esp.lang!=='en';
+const tr=(a,e)=>AR?a:e;
+function fit(cv,h){const d=devicePixelRatio||1,w=cv.clientWidth||300;cv.width=w*d;cv.height=h*d;cv.style.height=h+'px';const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);return[x,w,h]}
+function cs(n,f){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}
+function line(cv,series,cols,lo,hi,h){const[x,w]=fit(cv,h||120);x.clearRect(0,0,w,h||120);x.strokeStyle=cs('--muted','#888')+'55';x.lineWidth=1;
+ for(let i=1;i<4;i++){const y=(h||120)*i/4;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke()}
+ series.forEach((s,k)=>{if(s.length<2)return;x.strokeStyle=cols[k];x.lineWidth=2;x.beginPath();
+  s.forEach((v,i)=>{const px=i*(w/(s.length-1)),py=(h||120)-4-(v-lo)/((hi-lo)||1)*((h||120)-8);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()})}
+
+$('ld').textContent=tr('التاريخ','Date');$('lc').textContent=tr('حرارة الشريحة °C','Chip °C');$('sy').textContent=tr('مزامنة مع المتصفح','Sync from browser');
+let tm='00:00:00';
+function clock(){const[x,w,h]=fit($('cv'),200),cx=w/2,cy=h/2,r=Math.min(cx,cy)-8,[H,M,S]=tm.split(':').map(Number);x.clearRect(0,0,w,h);
+ x.strokeStyle=cs('--muted','#888');x.lineWidth=2;x.beginPath();x.arc(cx,cy,r,0,7);x.stroke();
+ for(let i=0;i<12;i++){const a=i*Math.PI/6,l=i%3?6:12;x.beginPath();x.moveTo(cx+Math.sin(a)*(r-l),cy-Math.cos(a)*(r-l));x.lineTo(cx+Math.sin(a)*r,cy-Math.cos(a)*r);x.stroke()}
+ const hand=(a,l,wd,c)=>{x.strokeStyle=c;x.lineWidth=wd;x.lineCap='round';x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.sin(a)*l,cy-Math.cos(a)*l);x.stroke()};
+ hand((H%12+M/60)*Math.PI/6,r*.5,5,cs('--text','#fff'));hand((M+S/60)*Math.PI/30,r*.75,3,cs('--text','#fff'));hand(S*Math.PI/30,r*.85,1.5,cs('--primary','#38bdf8'));
+ x.fillStyle=cs('--text','#fff');x.textAlign='center';x.font='bold 14px system-ui';x.fillText(tm,cx,cy+r*.45)}
+esp.on('t',v=>{tm=v;$('er').textContent='';clock()});esp.on('d',v=>$('vd').textContent=v);esp.on('c',v=>$('vc').textContent=(+v).toFixed(1));
+esp.on('err',e=>$('er').textContent=e?'⚠ '+e:'');
+$('sy').onclick=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');esp.send('sync',d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()))};
+addEventListener('resize',clock);clock();
+esp.height(320);</script></body></html>

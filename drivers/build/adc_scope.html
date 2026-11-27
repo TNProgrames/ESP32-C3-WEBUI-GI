@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:var(--text);background:transparent}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:8px}
+.c{background:var(--panel);border:1px solid var(--border,#8884);border-radius:10px;padding:8px 10px}
+.c small{display:block;color:var(--muted);font-size:11px}.c b{font-size:22px}
+canvas{width:100%;display:block;background:var(--panel);border-radius:10px;border:1px solid var(--border,#8884)}
+button,select{font:inherit;padding:5px 10px;border-radius:8px;border:1px solid var(--border,#8886);background:var(--panel);color:var(--text)}
+.r{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+</style></head><body><canvas id="cv"></canvas>
+<div class="g" style="margin-top:8px"><div class="c"><small id="lv"></small><b id="vv">--</b></div><div class="c"><small id="lx"></small><b id="vx">--</b></div><div class="c"><small id="ln"></small><b id="vn">--</b></div></div>
+<div class="r"><span id="lc"></span><select id="ch"><option value="0">A0</option><option value="1">A1</option><option value="2">A2</option><option value="3">A3</option></select>
+<span id="lg"></span><select id="g"><option value="0">±6.144V</option><option value="1" selected>±4.096V</option><option value="2">±2.048V</option><option value="3">±1.024V</option><option value="4">±0.512V</option><option value="5">±0.256V</option></select><span id="er" style="color:#e55"></span></div><script>
+const $=id=>document.getElementById(id), AR=esp.lang!=='en';
+const tr=(a,e)=>AR?a:e;
+function fit(cv,h){const d=devicePixelRatio||1,w=cv.clientWidth||300;cv.width=w*d;cv.height=h*d;cv.style.height=h+'px';const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);return[x,w,h]}
+function cs(n,f){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||f}
+function line(cv,series,cols,lo,hi,h){const[x,w]=fit(cv,h||120);x.clearRect(0,0,w,h||120);x.strokeStyle=cs('--muted','#888')+'55';x.lineWidth=1;
+ for(let i=1;i<4;i++){const y=(h||120)*i/4;x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke()}
+ series.forEach((s,k)=>{if(s.length<2)return;x.strokeStyle=cols[k];x.lineWidth=2;x.beginPath();
+  s.forEach((v,i)=>{const px=i*(w/(s.length-1)),py=(h||120)-4-(v-lo)/((hi-lo)||1)*((h||120)-8);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()})}
+
+$('lv').textContent=tr('الجهد mV','mV');$('lx').textContent=tr('الأعلى','Max');$('ln').textContent=tr('الأدنى','Min');$('lc').textContent=tr('القناة','Channel');$('lg').textContent=tr('المدى','Range');
+const D=[];let mx=-1e9,mn=1e9;
+esp.on('v',v=>{D.push(v);if(D.length>120)D.shift();$('vv').textContent=v;mx=Math.max(mx,v);mn=Math.min(mn,v);$('vx').textContent=mx;$('vn').textContent=mn;$('er').textContent='';
+ const lo=Math.min(...D),hi=Math.max(...D),pad=Math.max(10,(hi-lo)*.1);line($('cv'),[D],[cs('--primary','#38bdf8')],lo-pad,hi+pad,170)});
+esp.on('err',e=>$('er').textContent='⚠ '+e);
+$('ch').onchange=e=>{D.length=0;mx=-1e9;mn=1e9;esp.send('ch',+e.target.value)};$('g').onchange=e=>{D.length=0;mx=-1e9;mn=1e9;esp.send('g',+e.target.value)};
+esp.height(360);</script></body></html>

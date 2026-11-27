@@ -1,0 +1,26 @@
+{
+  "name": "esp32-c3-webui",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "ui"
+  ],
+  "scripts": {
+    "dev": "node server.js",
+    "build": "vite build ui --outDir ../dist --emptyOutDir",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "svelte": "^5.59.2",
+    "vite": "^8.4.0",
+    "vite-plugin-singlefile": "^2.3.4"
+  }
+}

@@ -1,0 +1,18 @@
+# تشغيل Arduino تلقائياً فوق ESP-IDF (يستدعي setup() و loop())
+CONFIG_AUTOSTART_ARDUINO=y
+CONFIG_FREERTOS_HZ=1000
+
+# حجم الفلاش وجدول الأقسام المخصص (يطابق partitions.csv)
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# تعطيل حماية الذاكرة وتقسيم PMP في البوتلودر والتطبيق على ESP32-C3 لتفعيل MALLOC_CAP_EXEC في الـ Heap
+# والسماح بتحميل وتنفيذ ملفات الدرايفرات الموقّعة (.drv) من الـ RAM
+CONFIG_BOOTLOADER_REGION_PROTECTION_ENABLE=n
+CONFIG_ESP_SYSTEM_MEMPROT_FEATURE=n
+CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK=n
+CONFIG_ESP_SYSTEM_PMP_IDRAM_SPLIT=n
+# في حال استخدام ESP-IDF 6.x يُضاف أيضاً:
+CONFIG_ESP_SYSTEM_MEMPROT=n
+

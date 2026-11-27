@@ -1,0 +1,1 @@
+{"title": "راسم إشارة ADS1115", "desc": "راسم إشارة على canvas لقناة من 4 قنوات 16 بت، مع اختيار القناة والمدى.", "driver": "ads1115", "icon": "📈", "category": "tools", "page": true}
