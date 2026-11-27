@@ -620,7 +620,7 @@
             const fd = new FormData(); fd.append('file', f, f.name); x.send(fd);
         }
 
-        function logout() { document.cookie = "session_key_em=; Max-Age=0; Path=/; SameSite=Strict"; location.href = "/"; }
+        async function logout() { try { await fetch('/em/logout', { method: 'POST' }); } catch {} location.href = "/"; }
 
         // ---- محرر الكود ----
         const ta = () => document.getElementById('editor-content');

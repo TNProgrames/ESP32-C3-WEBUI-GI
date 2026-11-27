@@ -328,7 +328,7 @@ static void reg(lua_State* L, const char* tbl, const luaL_Reg* fns) {
 enum { W_LABEL, W_BUTTON, W_SWITCH, W_SLIDER, W_PROGRESS, W_INPUT, W_COUNT };
 static const char* WTYPES[W_COUNT] = { "label", "button", "switch", "slider", "progress", "input" };
 
-struct Panel  { bool used; uint8_t owner; char title[24]; char page[40]; };
+struct Panel  { bool used; uint8_t owner; char script[NAME_LEN]; char title[24]; char page[40]; };
 struct Widget { bool used; uint8_t panel; uint8_t type; char id[ID_LEN]; char label[24]; float mn, mx; char val[VAL_LEN]; };
 struct Msg    { uint32_t seq; uint8_t panel; char name[ID_LEN]; char val[VAL_LEN]; };
 struct UiEv   { uint8_t panel; char name[ID_LEN]; char val[VAL_LEN]; };
@@ -432,6 +432,7 @@ static int l_ui_new(lua_State* L) {
   if (slot < 0) return luaL_error(L, "no free panel (max %d total)", MAX_PANELS);
   xSemaphoreTake(uiMux, portMAX_DELAY);
   panels[slot].used = true; panels[slot].owner = idxOf(s);
+  strncpy(panels[slot].script, s->name, NAME_LEN - 1); panels[slot].script[NAME_LEN - 1] = 0;
   strncpy(panels[slot].title, title, sizeof(panels[slot].title) - 1); panels[slot].title[sizeof(panels[slot].title) - 1] = 0;
   panels[slot].page[0] = 0;
   uiVer++;
@@ -773,11 +774,13 @@ static bool autoHas(const String& list, const char* name) {
 static char* loadFile(const char* name, size_t* len) {
   String p = String(SCRIPTS_DIR) + "/" + name + ".lua";
   File f = LittleFS.open(p, "r");
-  if (!f || f.isDirectory() || f.size() == 0 || f.size() > MAX_CODE) return nullptr;
+  if (!f || f.isDirectory() || f.size() == 0 || f.size() > MAX_CODE) { if (f) f.close(); return nullptr; }
   size_t n = f.size();
   char* buf = (char*)malloc(n + 1);
-  if (!buf) return nullptr;
+  if (!buf) { f.close(); return nullptr; }
   size_t r = f.read((uint8_t*)buf, n);
+  f.close();
+  if (r != n) { free(buf); return nullptr; }
   buf[r] = 0;
   *len = r;
   return buf;
@@ -858,7 +861,7 @@ static int l_storage_get(lua_State* L) {
   JsonObjectConst o = kvGet(s)->as<JsonObjectConst>();
   JsonVariantConst v = o[key];
   if (v.isNull()) { if (lua_gettop(L) >= 2) lua_pushvalue(L, 2); else lua_pushnil(L); }
-  else pushVariant(L, v, 3);
+  else pushVariant(L, v, 0);
   return 1;
 }
 static int kvRemove(lua_State* L, Script* s, const char* key) {
@@ -1334,7 +1337,14 @@ static int apiGpioRead(uint8_t pin) {
   return digitalRead(pin);
 }
 static const char* drvErrName(int c) {
-  switch (c) { case 2: case 3: case 5: case 7: case 8: return i2cErr(c); case 9: return "pin_unavailable"; case 10: return "spi_not_started"; default: return "device_error"; }
+  switch (c) {
+    case DRV_E_ARGS: return "bad_args";
+    case DRV_E_FAULT: return "driver_fault";
+    case 2: case 3: case 5: case 7: case 8: return i2cErr(c);
+    case 9: return "pin_unavailable";
+    case 10: return "spi_not_started";
+    default: return "device_error";
+  }
 }
 // يُستدعى من المفسّر حين ينادي الدرايفر دالة من api (الأرقام = ترتيب الحقول في drv_api_t بعد version).
 // كل مؤشر من الدرايفر يُترجَم ويُفحص حدوده أولًا؛ أي عنوان خارج ذاكرته يُرفض بـDRV_E_ARGS.
@@ -1403,6 +1413,13 @@ static int l_drv_open(lua_State* L) {
       lua_pop(L, 1);
     }
   }
+  // خصّص userdata والجدول المرفق قبل حجز الدرايفر، كي لا يتسرب users أو ctx عند نفاد ذاكرة Lua
+  DrvHandle* h = (DrvHandle*)lua_newuserdatauv(L, sizeof(DrvHandle), 1);
+  h->e = nullptr; h->ctx = 0;
+  luaL_setmetatable(L, DRV_MT);
+  lua_newtable(L);                    // ذاكرة مؤقتة للدوال المنشأة
+  lua_setiuservalue(L, -2, 1);
+
   DrvEntry* e = drv_acquire(name);        // يحجز الدرايفر فلا يُحذف أو يُستبدل أثناء الاستعمال
   if (!e) return failResult(L, "driver_not_installed");
   uint32_t ctx = 0; int rc;
@@ -1414,14 +1431,11 @@ static int l_drv_open(lua_State* L) {
   }
   if (rc) {
     drv_release(e);
+    if (rc == DRV_E_ARGS) return failResult(L, "bad_args");
     int c = g_drvErr ? g_drvErr : rc;
     return failResult(L, drvErrName(c));
   }
-  DrvHandle* h = (DrvHandle*)lua_newuserdatauv(L, sizeof(DrvHandle), 1);
   h->e = e; h->ctx = ctx; s->drvOpen++;
-  luaL_setmetatable(L, DRV_MT);
-  lua_newtable(L);                    // ذاكرة مؤقتة للدوال المنشأة
-  lua_setiuservalue(L, -2, 1);
   return 1;
 }
 
@@ -1464,7 +1478,11 @@ static int l_drv_call(lua_State* L) {
     switch (r[i].type) {
       case DRV_BOOL: lua_pushboolean(L, r[i].v.i != 0); break;
       case DRV_INT:  lua_pushinteger(L, r[i].v.i); break;
-      case DRV_STR: case DRV_BLOB: lua_pushlstring(L, (const char*)r[i].v.p, r[i].len); break;
+      case DRV_STR: case DRV_BLOB:
+        if (r[i].v.p) lua_pushlstring(L, (const char*)r[i].v.p, r[i].len);
+        else if (r[i].len == 0) lua_pushliteral(L, "");
+        else lua_pushnil(L);
+        break;
       default: lua_pushnil(L);
     }
   }
@@ -1526,11 +1544,13 @@ static void drvRegister(lua_State* L) {
 
 static char* loadPath(const String& p, size_t* len) {
   File f = LittleFS.open(p, "r");
-  if (!f || f.isDirectory() || f.size() == 0 || f.size() > MAX_CODE) return nullptr;
+  if (!f || f.isDirectory() || f.size() == 0 || f.size() > MAX_CODE) { if (f) f.close(); return nullptr; }
   size_t n = f.size();
   char* buf = (char*)malloc(n + 1);
-  if (!buf) return nullptr;
+  if (!buf) { f.close(); return nullptr; }
   size_t r = f.read((uint8_t*)buf, n);
+  f.close();
+  if (r != n) { free(buf); return nullptr; }
   buf[r] = 0; *len = r;
   return buf;
 }
@@ -1619,7 +1639,7 @@ void luaeng_begin() {
 }
 
 bool luaeng_run(const char* name, const char* code, size_t len) {
-  if (!luaeng_valid_name(name) || len == 0 || len > MAX_CODE) return false;
+  if (!cmdQ || !luaeng_valid_name(name) || len == 0 || len > MAX_CODE) return false;
   Cmd c = {}; c.type = C_RUN; strncpy(c.name, name, NAME_LEN - 1);
   c.code = (char*)malloc(len + 1);
   if (!c.code) return false;
@@ -1632,25 +1652,28 @@ bool luaeng_run_file(const char* name) {
   if (!luaeng_valid_name(name)) return false;
   String p = String("/scripts/") + name + ".lua";
   File f = LittleFS.open(p, "r");
-  if (!f || f.isDirectory() || f.size() == 0 || f.size() > MAX_CODE) return false;
+  if (!f || f.isDirectory() || f.size() == 0 || f.size() > MAX_CODE) { if (f) f.close(); return false; }
   size_t n = f.size();
   char* buf = (char*)malloc(n + 1);
-  if (!buf) return false;
-  f.read((uint8_t*)buf, n);
-  bool ok = luaeng_run(name, buf, n);
+  if (!buf) { f.close(); return false; }
+  size_t r = f.read((uint8_t*)buf, n);
+  f.close();
+  if (r != n) { free(buf); return false; }
+  bool ok = luaeng_run(name, buf, r);
   free(buf);
   return ok;
 }
 
 bool luaeng_stop(const char* name) {
-  if (!luaeng_valid_name(name)) return false;
+  if (!cmdQ || !luaeng_valid_name(name)) return false;
   Cmd c = {}; c.type = C_STOP; strncpy(c.name, name, NAME_LEN - 1);
   return xQueueSend(cmdQ, &c, 0) == pdTRUE;
 }
 
-void luaeng_stop_all() { Cmd c = {}; c.type = C_STOPALL; xQueueSend(cmdQ, &c, 0); }
+void luaeng_stop_all() { if (cmdQ) { Cmd c = {}; c.type = C_STOPALL; xQueueSend(cmdQ, &c, 0); } }
 
 String luaeng_list_text() {
+  if (!statusMux) return String("(no scripts)");
   String o;
   xSemaphoreTake(statusMux, portMAX_DELAY);
   for (auto& s : scripts) if (s.state != ST_FREE) {
@@ -1665,16 +1688,18 @@ String luaeng_list_text() {
 String luaeng_list_json() {
   JsonDocument d;
   JsonArray a = d.to<JsonArray>();
-  xSemaphoreTake(statusMux, portMAX_DELAY);
-  for (auto& s : scripts) if (s.state != ST_FREE) {
-    JsonObject o = a.add<JsonObject>();
-    o["name"] = s.name;
-    o["state"] = s.state == ST_RUN ? "running" : "error";
-    o["mem"] = (uint32_t)s.mem;
-    o["up"] = (millis() - s.startMs) / 1000;
-    if (s.state == ST_ERR) o["err"] = s.err;
+  if (statusMux) {
+    xSemaphoreTake(statusMux, portMAX_DELAY);
+    for (auto& s : scripts) if (s.state != ST_FREE) {
+      JsonObject o = a.add<JsonObject>();
+      o["name"] = s.name;
+      o["state"] = s.state == ST_RUN ? "running" : "error";
+      o["mem"] = (uint32_t)s.mem;
+      o["up"] = (millis() - s.startMs) / 1000;
+      if (s.state == ST_ERR) o["err"] = s.err;
+    }
+    xSemaphoreGive(statusMux);
   }
-  xSemaphoreGive(statusMux);
   String out; serializeJson(d, out);
   return out;
 }
@@ -1683,32 +1708,35 @@ String luaeng_list_json() {
 String luaeng_ui_panels_json() {
   JsonDocument d;
   JsonObject root = d.to<JsonObject>();
-  xSemaphoreTake(uiMux, portMAX_DELAY);
-  root["ver"] = uiVer;
-  JsonArray ps = root["panels"].to<JsonArray>();
-  for (int i = 0; i < MAX_PANELS; i++) if (panels[i].used) {
-    JsonObject po = ps.add<JsonObject>();
-    po["id"] = i;
-    po["script"] = scripts[panels[i].owner].name;
-    po["title"] = panels[i].title;
-    if (panels[i].page[0]) po["page"] = panels[i].page;
-    JsonArray ws = po["widgets"].to<JsonArray>();
-    for (auto& w : widgets) if (w.used && w.panel == i) {
-      JsonObject wo = ws.add<JsonObject>();
-      wo["id"] = w.id;
-      wo["type"] = WTYPES[w.type];
-      wo["label"] = w.label;
-      wo["min"] = w.mn;
-      wo["max"] = w.mx;
-      wo["value"] = serialized(w.val);
+  if (uiMux) {
+    xSemaphoreTake(uiMux, portMAX_DELAY);
+    root["ver"] = uiVer;
+    JsonArray ps = root["panels"].to<JsonArray>();
+    for (int i = 0; i < MAX_PANELS; i++) if (panels[i].used) {
+      JsonObject po = ps.add<JsonObject>();
+      po["id"] = i;
+      po["script"] = panels[i].script;
+      po["title"] = panels[i].title;
+      if (panels[i].page[0]) po["page"] = panels[i].page;
+      JsonArray ws = po["widgets"].to<JsonArray>();
+      for (auto& w : widgets) if (w.used && w.panel == i) {
+        JsonObject wo = ws.add<JsonObject>();
+        wo["id"] = w.id;
+        wo["type"] = WTYPES[w.type];
+        wo["label"] = w.label;
+        wo["min"] = w.mn;
+        wo["max"] = w.mx;
+        wo["value"] = serialized(w.val);
+      }
     }
+    xSemaphoreGive(uiMux);
   }
   String out; serializeJson(d, out);
-  xSemaphoreGive(uiMux);
   return out;
 }
 
 String luaeng_ui_poll_json(uint32_t since) {
+  if (!uiMux) return String("{\"seq\":0,\"ver\":1,\"msgs\":[]}");
   int idx[MAX_MSGS]; int n = 0;
   String o;
   xSemaphoreTake(uiMux, portMAX_DELAY);
@@ -1731,7 +1759,9 @@ String luaeng_ui_poll_json(uint32_t since) {
 }
 
 bool luaeng_ui_event(int panel, const char* name, const char* valJson) {
-  if (panel < 0 || panel >= MAX_PANELS || !safeName(name, ID_LEN) || strlen(valJson) >= VAL_LEN) return false;
+  if (!evQ || panel < 0 || panel >= MAX_PANELS || !safeName(name, ID_LEN) || !valJson || !*valJson || strlen(valJson) >= VAL_LEN) return false;
+  JsonDocument d;
+  if (deserializeJson(d, valJson) != DeserializationError::Ok) return false;
   UiEv e = {}; e.panel = panel;
   strncpy(e.name, name, ID_LEN - 1); strncpy(e.val, valJson, VAL_LEN - 1);
   return xQueueSend(evQ, &e, 0) == pdTRUE;
@@ -1801,8 +1831,10 @@ String luaeng_files_json() {
           if (pg.length()) o["page"] = pg;
         }
       }
+      f.close();
       f = dir.openNextFile();
     }
+    dir.close();
   }
   String out; serializeJson(d, out);
   return out;
@@ -1864,8 +1896,10 @@ String luaeng_libs_json() {
           o["size"] = (uint32_t)f.size();
         }
       }
+      f.close();
       f = dir.openNextFile();
     }
+    dir.close();
   }
   String out; serializeJson(d, out);
   return out;

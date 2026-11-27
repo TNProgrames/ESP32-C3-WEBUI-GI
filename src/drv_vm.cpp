@@ -9,7 +9,7 @@ size_t drv_vm_arena_size(size_t memLen) {
 }
 
 bool drv_vm_init(DrvVM* v, uint8_t* arena, size_t memLen, size_t imgLen, DrvHostFn host) {
-  if (!arena || imgLen > memLen) return false;
+  if (!v || !arena || imgLen > memLen || memLen > 64 * 1024) return false;
   memset(v, 0, sizeof(*v));
   v->mem = arena; v->imgLen = (uint32_t)imgLen; v->host = host;
   v->apiOff = (uint32_t)((memLen + 15) & ~15u);
@@ -28,12 +28,15 @@ bool drv_vm_init(DrvVM* v, uint8_t* arena, size_t memLen, size_t imgLen, DrvHost
 uint32_t drv_vm_api_addr(DrvVM* v) { return DRV_GBASE + v->apiOff; }
 
 uint8_t* drv_vm_ptr(DrvVM* v, uint32_t g, uint32_t len) {
+  if (!v || !v->mem || g < DRV_GBASE) return nullptr;
   uint32_t o = g - DRV_GBASE;
-  if (o >= v->size) return len == 0 ? v->mem : nullptr;
+  if (o > v->size) return nullptr;
+  if (o == v->size) return len == 0 ? v->mem + o : nullptr;
   return len <= v->size - o ? v->mem + o : nullptr;
 }
 
 const char* drv_vm_str(DrvVM* v, uint32_t g, uint32_t maxlen) {
+  if (!v || !v->mem || g < DRV_GBASE) return nullptr;
   uint32_t o = g - DRV_GBASE;
   if (o >= v->size) return nullptr;
   uint32_t room = v->size - o; if (room > maxlen) room = maxlen;
@@ -41,17 +44,22 @@ const char* drv_vm_str(DrvVM* v, uint32_t g, uint32_t maxlen) {
   return nullptr;
 }
 
-// كومة بسيطة: first-fit مع تقسيم ودمج الكتل الحرة المتجاورة
+// كومة بسيطة: first-fit مع تقسيم ودمج الكتل الحرة المتجاورة والتحقق من سلامة الترويسات
 uint32_t drv_vm_alloc(DrvVM* v, uint32_t n) {
-  if (n == 0 || n > DRV_VM_HEAP) return 0;
+  if (!v || !v->mem || n == 0 || n > DRV_VM_HEAP - 8) return 0;
   n = (n + 7) & ~7u;
+  if (n > DRV_VM_HEAP - 8) return 0;
   for (uint32_t o = v->heapOff; o + 8 <= v->heapEnd;) {
-    uint32_t sz, used; memcpy(&sz, v->mem + o, 4); memcpy(&used, v->mem + o + 4, 4);
+    uint32_t sz = 0, used = 0; memcpy(&sz, v->mem + o, 4); memcpy(&used, v->mem + o + 4, 4);
+    uint32_t maxSz = v->heapEnd - o - 8;
+    if ((sz & 7) || sz > maxSz || (used != 0 && used != 1)) return 0;   // ترويسة تالفة
     if (!used) {
       // دمج الحرّات التالية
       for (;;) {
         uint32_t nx = o + 8 + sz; if (nx + 8 > v->heapEnd) break;
-        uint32_t s2, u2; memcpy(&s2, v->mem + nx, 4); memcpy(&u2, v->mem + nx + 4, 4);
+        uint32_t s2 = 0, u2 = 0; memcpy(&s2, v->mem + nx, 4); memcpy(&u2, v->mem + nx + 4, 4);
+        uint32_t maxS2 = v->heapEnd - nx - 8;
+        if ((s2 & 7) || s2 > maxS2 || (u2 != 0 && u2 != 1)) return 0;
         if (u2) break;
         sz += 8 + s2; memcpy(v->mem + o, &sz, 4);
       }
@@ -70,10 +78,20 @@ uint32_t drv_vm_alloc(DrvVM* v, uint32_t n) {
 }
 
 void drv_vm_free(DrvVM* v, uint32_t g) {
-  uint32_t o = g - DRV_GBASE;
-  if (g == 0 || o < v->heapOff + 8 || o >= v->heapEnd) return;
-  uint32_t used = 0; memcpy(&used, v->mem + o - 4, 4);
-  if (used == 1) { used = 0; memcpy(v->mem + o - 4, &used, 4); }
+  if (!v || !v->mem || g < DRV_GBASE + v->heapOff + 8) return;
+  uint32_t target = g - DRV_GBASE;
+  if (target >= v->heapEnd) return;
+  for (uint32_t o = v->heapOff; o + 8 <= v->heapEnd;) {
+    uint32_t sz = 0, used = 0; memcpy(&sz, v->mem + o, 4); memcpy(&used, v->mem + o + 4, 4);
+    uint32_t maxSz = v->heapEnd - o - 8;
+    if ((sz & 7) || sz > maxSz || (used != 0 && used != 1)) return;
+    if (o + 8 == target) {
+      if (used == 1) { used = 0; memcpy(v->mem + o + 4, &used, 4); }
+      return;
+    }
+    if (o + 8 > target) return;
+    o += 8 + sz;
+  }
 }
 
 // ---------- المفسّر ----------
@@ -90,7 +108,7 @@ int drv_vm_call(DrvVM* v, uint32_t fn, const uint32_t* args, int nargs, uint32_t
 #define FAULT(c) do { v->fault = (c); v->pc = pc; return (c); } while (0)
   for (;;) {
     uint32_t po = pc - DRV_GBASE;
-    if (po > imgLen - 4 || (pc & 3) || imgLen < 4) {
+    if (imgLen < 4 || po > imgLen - 4 || (pc & 3)) {
       if (pc == STOP_ADDR) { if (ret) *ret = x[10]; return 0; }
       if (pc > HOST_BASE && pc < HOST_BASE + 4u * DRV_VM_NHOST && !(pc & 3)) {
         x[10] = v->host ? v->host(v, (int)((pc - HOST_BASE) / 4), &x[10]) : 0;

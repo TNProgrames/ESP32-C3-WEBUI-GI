@@ -42,9 +42,9 @@
 
 <div class="glass">
   <h2><Icon name="save" size={18} /> {t('نسخة احتياطية')}</h2>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:12px">{t('تحفظ الإعدادات (الواي فاي، الاتصال، PIN) وكلمات المرور في ملف JSON واحد.')}</p>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:12px">{t('تحفظ الإعدادات (الواي فاي والشبكات المحفوظة، الاتصال، PIN) وبيانات التحقق في ملف JSON واحد.')}</p>
   <button class="btn green" onclick={download} disabled={busy}><Icon name="download" size={15} mono={true} /> {t('تنزيل النسخة الاحتياطية')}</button>
-  <p style="font-size:12px;color:var(--warning);margin-top:10px">{t('تنبيه: الملف يحتوي كلمات المرور كنص صريح، فاحفظه في مكان آمن.')}</p>
+  <p style="font-size:12px;color:var(--warning);margin-top:10px">{t('تنبيه: الملف يحتوي إعدادات الشبكات وبيانات التحقق المعمّاة، فاحفظه في مكان آمن.')}</p>
 </div>
 
 <div class="glass">

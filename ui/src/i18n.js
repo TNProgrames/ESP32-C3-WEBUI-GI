@@ -78,12 +78,18 @@ export const en = {
   'المضيف المحلي': 'Local host', 'مضيف الإنترنت': 'Internet host',
   'رقم PIN لإعادة الضبط': 'Reset PIN (GPIO number)', 'حفظ': 'Save', 'تم الحفظ': 'Saved',
   // Passwords
-  'كلمة مرور admin': 'Admin password', 'كلمة مرور user': 'User password', 'الحقلان مطلوبان': 'Both fields are required',
+  'كلمة مرور admin': 'Admin password', 'كلمة مرور user': 'User password',
+  'أدخل كلمة مرور واحدة على الأقل': 'Enter at least one password',
+  'كلمة مرور جديدة (اتركها فارغة للإبقاء)': 'New password (leave blank to keep)',
+  'تُخزَّن كلمات المرور معمّاة ولا يمكن استرجاعها؛ اترك الحقل فارغًا للإبقاء على كلمة المرور الحالية.':
+    'Passwords are stored hashed and cannot be viewed; leave a field blank to keep the current password.',
   // Backup
   'نسخة احتياطية': 'Backup',
-  'تحفظ الإعدادات (الواي فاي، الاتصال، PIN) وكلمات المرور في ملف JSON واحد.': 'Saves the settings (WiFi, connection, PIN) and passwords in one JSON file.',
+  'تحفظ الإعدادات (الواي فاي والشبكات المحفوظة، الاتصال، PIN) وبيانات التحقق في ملف JSON واحد.':
+    'Saves settings (WiFi, saved networks, connection, PIN) and hashed credentials in one JSON file.',
   'تنزيل النسخة الاحتياطية': 'Download backup',
-  'تنبيه: الملف يحتوي كلمات المرور كنص صريح، فاحفظه في مكان آمن.': 'Note: the file contains passwords in plain text, keep it safe.',
+  'تنبيه: الملف يحتوي إعدادات الشبكات وبيانات التحقق المعمّاة، فاحفظه في مكان آمن.':
+    'Note: the file contains network settings and hashed credentials, keep it in a safe place.',
   'استعادة': 'Restore', 'ملف النسخة الاحتياطية (.json)': 'Backup file (.json)',
   'استعادة وإعادة التشغيل': 'Restore & restart',
   'تم تنزيل النسخة الاحتياطية': 'Backup downloaded', 'فشل التنزيل: ': 'Download failed: ',

@@ -99,7 +99,11 @@
             if (!k.value) return;
             b.disabled = true; m.innerText = '';
             try {
-                const r = await fetch('/em/check?pass=' + encodeURIComponent(k.value));
+                const r = await fetch('/em/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'pass=' + encodeURIComponent(k.value)
+                });
                 if (r.ok) { location.href = '/em'; return; }
                 m.innerText = r.status === 429 ? T('محاولات كثيرة، انتظر دقيقة ثم أعد المحاولة') : T('المفتاح غير صحيح');
             } catch (e) { m.innerText = T('تعذر الاتصال بالجهاز'); }

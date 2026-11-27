@@ -20,6 +20,29 @@ const TOTAL_FS_BYTES = 1536 * 1024; // 1.5 MB LittleFS partition
 const vfsDirs = new Set(['/', '/scripts', '/scripts/lib', '/scripts/.data', '/ui', '/drivers']);
 const vfsFiles = new Map();
 
+function constTimeEq(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const ba = Buffer.from(a, 'utf8');
+  const bb = Buffer.from(b, 'utf8');
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
+}
+
+function hashPassword(plain) {
+  const salt = crypto.randomBytes(8).toString('hex');
+  const hex = crypto.createHash('sha256').update(`${salt}:${plain}`, 'utf8').digest('hex');
+  return `sha256$${salt}$${hex}`;
+}
+
+function verifyPassword(plain, stored) {
+  if (typeof plain !== 'string' || typeof stored !== 'string' || !stored) return false;
+  if (!stored.startsWith('sha256$')) return constTimeEq(plain, stored);
+  const parts = stored.split('$');
+  if (parts.length !== 3 || !parts[1] || parts[2].length !== 64) return false;
+  const hex = crypto.createHash('sha256').update(`${parts[1]}:${plain}`, 'utf8').digest('hex');
+  return constTimeEq(hex, parts[2]);
+}
+
 function seedDefaultFiles() {
   vfsDirs.clear();
   ['/','/scripts','/scripts/lib','/scripts/.data','/ui','/drivers'].forEach((d) => vfsDirs.add(d));
@@ -37,8 +60,8 @@ function seedDefaultFiles() {
     }
   }], null, 2)));
   vfsFiles.set('/users.json', Buffer.from(JSON.stringify([
-    { username: 'admin', password: 'admin123' },
-    { username: 'user', password: 'user123' }
+    { username: 'admin', password: hashPassword('admin123') },
+    { username: 'user', password: hashPassword('user123') }
   ], null, 2)));
   vfsFiles.set('/wifi_nets.json', Buffer.from('[]'));
 }
@@ -147,7 +170,7 @@ function saveSettings(obj) {
   vfsWrite('/settings.json', JSON.stringify([obj], null, 2));
 }
 function getUsers() {
-  try { return JSON.parse(vfsReadText('/users.json')); } catch { return [{ username: 'admin', password: 'admin123' }, { username: 'user', password: 'user123' }]; }
+  try { return JSON.parse(vfsReadText('/users.json')); } catch { return []; }
 }
 function saveUsers(arr) {
   vfsWrite('/users.json', JSON.stringify(arr, null, 2));
@@ -200,20 +223,18 @@ function accessKey() {
 }
 function isAdminToken(req) {
   const tok = req.get('user_token') || '';
-  return Boolean(tok && adminToken && tok === adminToken);
+  return Boolean(tok && adminToken && constTimeEq(tok, adminToken));
 }
 function isAnyToken(req) {
   const tok = req.get('user_token') || '';
-  return Boolean(tok && ((adminToken && tok === adminToken) || (userToken && tok === userToken)));
+  return Boolean(tok && ((adminToken && constTimeEq(tok, adminToken)) || (userToken && constTimeEq(tok, userToken))));
 }
 function isAuthorizedEm(req) {
   const cookies = parseCookies(req);
-  if (cookies.session_key_em && cookies.session_key_em === emSess) return true;
-  if (req.query.pass && String(req.query.pass) === accessKey()) return true;
-  return false;
+  return Boolean(cookies.session_key_em && constTimeEq(cookies.session_key_em, emSess));
 }
 function refreshEmCookie(res) {
-  res.cookie('session_key_em', emSess, { path: '/', httpOnly: false, maxAge: 900000, sameSite: 'strict' });
+  res.cookie('session_key_em', emSess, { path: '/', httpOnly: true, maxAge: 900000, sameSite: 'strict' });
 }
 
 // ---------- Multipart Parser (for em.html & Ota.svelte) ----------
@@ -640,13 +661,6 @@ function runScript(name, code) {
 
 // ---------- Express App Setup ----------
 const app = express();
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, User_Token, User_Role');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS');
-  if (req.method === 'OPTIONS') return res.sendStatus(200);
-  next();
-});
 
 // Serve drivers/build locally for the App & Driver Store
 app.use('/drivers/build', express.static(path.join(__dirname, 'drivers/build')));
@@ -664,15 +678,25 @@ app.get('/em', (req, res) => {
   return res.status(401).type('html').send(fs.readFileSync(path.join(__dirname, 'web/em_login.html'), 'utf8'));
 });
 
-app.get('/em/check', (req, res) => {
+app.post('/em/check', rawBody, (req, res) => {
   if (emLockUntil && Date.now() < emLockUntil) return res.sendStatus(429);
-  if (req.query.pass && String(req.query.pass) === accessKey()) {
+  const ct = req.get('content-type') || '';
+  let pass = '';
+  if (ct.includes('application/x-www-form-urlencoded')) {
+    pass = new URLSearchParams(req.body.toString('utf8')).get('pass') || '';
+  }
+  if (pass && constTimeEq(pass, accessKey())) {
     emFails = 0; emLockUntil = 0;
     refreshEmCookie(res);
     return res.sendStatus(200);
   }
   if (++emFails >= 5) { emFails = 0; emLockUntil = Date.now() + 60000; }
   return res.sendStatus(401);
+});
+
+app.post('/em/logout', (_req, res) => {
+  res.setHeader('Set-Cookie', 'session_key_em=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict');
+  res.sendStatus(200);
 });
 
 function emOrAdmin(req, res) {
@@ -798,7 +822,11 @@ app.post('/login', jsonBody, (req, res) => {
   }
   const users = getUsers();
   const idx = username === 'admin' ? 0 : username === 'user' ? 1 : -1;
-  if (idx !== -1 && users[idx] && users[idx].password === password) {
+  if (idx !== -1 && users[idx] && verifyPassword(String(password), users[idx].password)) {
+    if (!String(users[idx].password).startsWith('sha256$')) {
+      users[idx].password = hashPassword(String(password));
+      saveUsers(users);
+    }
     const token = crypto.randomBytes(16).toString('hex');
     if (idx === 0) adminToken = token;
     else userToken = token;
@@ -825,10 +853,12 @@ app.get('/login/reset_status', (_req, res) => {
   if (resetDoneAt && now >= resetDoneAt) {
     resetWaitUntil = 0;
     resetDoneAt = 0;
-    const users = getUsers();
-    users[0] = { username: 'admin', password: 'admin123' };
-    users[1] = { username: 'user', password: 'user123' };
-    saveUsers(users);
+    saveUsers([
+      { username: 'admin', password: hashPassword('admin123') },
+      { username: 'user', password: hashPassword('user123') }
+    ]);
+    adminToken = '';
+    userToken = '';
     logPrintf('Passwords reset to defaults\n');
     return res.json({ state: 'done', admin: 'admin123', user: 'user123' });
   }
@@ -860,7 +890,7 @@ app.get('/settings/get_stat', (_req, res) => {
   const mode = st.wifi?.mode || 'AP';
   const nets = getNets();
   const connected = mode !== 'AP' && nets.length > 0;
-  res.status(202).json({
+  res.status(200).json({
     ssid: connected ? nets[0].ssid : '',
     ip: connected ? '192.168.1.42' : '192.168.4.1',
     status: connected ? 'CONNECTED' : 'DISCONNECTED',
@@ -869,7 +899,7 @@ app.get('/settings/get_stat', (_req, res) => {
 });
 
 app.get('/settings/scan_wifi', (_req, res) => {
-  res.status(202).json([
+  res.status(200).json([
     { ssid: 'Home_WiFi_5G', rssi: -48, secure: true },
     { ssid: 'ESP32_Lab', rssi: -62, secure: true },
     { ssid: 'Guest_Network', rssi: -74, secure: false }
@@ -942,14 +972,18 @@ app.post('/settings/save_pin', jsonBody, (req, res) => {
 app.get('/settings/get_pass', (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
   const u = getUsers();
-  res.json({ ap: u[0]?.password || '', up: u[1]?.password || '' });
+  res.json({ hasAp: Boolean(u[0]?.password), hasUp: Boolean(u[1]?.password), ap: '', up: '' });
 });
 
 app.post('/settings/save_pass', jsonBody, (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
+  const ap = typeof req.body?.ap === 'string' ? req.body.ap : '';
+  const up = typeof req.body?.up === 'string' ? req.body.up : '';
+  if (!ap && !up) return res.sendStatus(400);
+  if (ap.length > 64 || up.length > 64) return res.sendStatus(400);
   const u = getUsers();
-  if (req.body?.ap) u[0] = { username: 'admin', password: String(req.body.ap) };
-  if (req.body?.up) u[1] = { username: 'user', password: String(req.body.up) };
+  if (ap) u[0] = { username: 'admin', password: hashPassword(ap) };
+  if (up) u[1] = { username: 'user', password: hashPassword(up) };
   saveUsers(u);
   res.sendStatus(200);
 });
@@ -957,17 +991,30 @@ app.post('/settings/save_pass', jsonBody, (req, res) => {
 app.get('/settings/backup', (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
   res.setHeader('Content-Disposition', 'attachment; filename=esp32-backup.json');
-  res.json({ version: 1, settings: JSON.parse(vfsReadText('/settings.json')), users: getUsers() });
+  res.json({ version: 1, settings: JSON.parse(vfsReadText('/settings.json')), users: getUsers(), nets: getNets() });
 });
 
 app.post('/settings/restore', jsonBody, (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
-  const { settings, users } = req.body || {};
-  if (!Array.isArray(settings) || settings.length < 1 || !Array.isArray(users) || users.length < 2) {
+  const { settings, users, nets } = req.body || {};
+  if (!Array.isArray(settings) || settings.length < 1 || !Array.isArray(users) || users.length < 2
+      || typeof users[0]?.username !== 'string' || typeof users[0]?.password !== 'string' || !users[0].password
+      || typeof users[1]?.username !== 'string' || typeof users[1]?.password !== 'string' || !users[1].password) {
     return res.status(400).json({ error: 'invalid backup' });
   }
+  const hashedUsers = users.map((entry, i) => i < 2 ? {
+    username: entry.username,
+    password: entry.password.startsWith('sha256$') ? entry.password : hashPassword(entry.password)
+  } : entry);
   vfsWrite('/settings.json', JSON.stringify(settings, null, 2));
-  saveUsers(users);
+  saveUsers(hashedUsers);
+  if (Array.isArray(nets)) {
+    const clean = nets.filter((n) => n?.ssid && String(n.ssid).length <= 32 && String(n.pass || '').length <= 63)
+      .slice(0, 6).map((n) => ({ ssid: String(n.ssid), pass: String(n.pass || '') }));
+    saveNets(clean);
+  } else {
+    vfsDeleteRecursive('/wifi_nets.json');
+  }
   bootAt = Date.now();
   res.json({ ok: true });
 });

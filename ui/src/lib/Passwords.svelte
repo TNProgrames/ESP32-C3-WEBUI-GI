@@ -7,22 +7,28 @@
   let ap = $state(''); let up = $state('');
   let msg = $state(''); let ok = $state(true);
 
-  $effect(() => { api('/settings/get_pass').then(r => { ap = r.ap; up = r.up; }).catch(() => {}); });
-
   async function save(e) {
     e.preventDefault();
-    if (!ap || !up) { ok = false; msg = t('الحقلان مطلوبان'); return; }
-    try { await api('/settings/save_pass', { ap, up }); ok = true; msg = t('تم الحفظ'); }
-    catch { ok = false; msg = t('فشل الحفظ'); }
+    if (!ap && !up) { ok = false; msg = t('أدخل كلمة مرور واحدة على الأقل'); return; }
+    if (ap.length > 64 || up.length > 64) { ok = false; msg = t('فشل الحفظ'); return; }
+    const payload = {};
+    if (ap) payload.ap = ap;
+    if (up) payload.up = up;
+    try {
+      await api('/settings/save_pass', payload);
+      ap = ''; up = '';
+      ok = true; msg = t('تم الحفظ');
+    } catch { ok = false; msg = t('فشل الحفظ'); }
   }
 </script>
 
 <form class="glass" onsubmit={save}>
   <h2><Icon name="key" size={17} /> {t('كلمات المرور')}</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:10px">{t('تُخزَّن كلمات المرور معمّاة ولا يمكن استرجاعها؛ اترك الحقل فارغًا للإبقاء على كلمة المرور الحالية.')}</p>
   <label for="a">{t('كلمة مرور admin')}</label>
-  <PassInput id="a" bind:value={ap} />
+  <PassInput id="a" bind:value={ap} placeholder={t('كلمة مرور جديدة (اتركها فارغة للإبقاء)')} autocomplete="new-password" />
   <label for="u">{t('كلمة مرور user')}</label>
-  <PassInput id="u" bind:value={up} />
+  <PassInput id="u" bind:value={up} placeholder={t('كلمة مرور جديدة (اتركها فارغة للإبقاء)')} autocomplete="new-password" />
   <div style="margin-top:14px"><button class="btn green">{t('حفظ')}</button></div>
   <div class="msg" class:ok class:err={!ok}>{msg}</div>
 </form>

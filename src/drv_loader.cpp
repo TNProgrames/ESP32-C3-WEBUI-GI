@@ -75,8 +75,8 @@ static bool parse(const uint8_t* b, size_t len, Parsed* o, String* err) {
   if (rd16(b + 4) != 1) return fail("bad format");
   if (rd16(b + 6) != DRV_API_VERSION) return fail("api version mismatch");
   o->entry = rd32(b + 8); o->imgLen = rd32(b + 12); o->memLen = rd32(b + 16); o->nrel = rd32(b + 20);
-  if (o->imgLen == 0 || o->imgLen > DRV_MAX_FILE || o->memLen < o->imgLen || o->memLen > 64 * 1024 || o->nrel > 4096) return fail("bad layout");
-  if (o->entry >= o->imgLen || (o->entry & 1)) return fail("bad entry");
+  if (o->imgLen < 4 || o->imgLen > DRV_MAX_FILE || o->memLen < o->imgLen || o->memLen > 64 * 1024 || o->nrel > 4096) return fail("bad layout");
+  if (o->entry > o->imgLen - 4 || (o->entry & 3)) return fail("bad entry");
   if ((uint64_t)HDR + o->imgLen + 4ull * o->nrel + SIG != len) return fail("size mismatch");
   memcpy(o->name, b + 24, 16); o->name[16] = 0; memcpy(o->ver, b + 40, 8); o->ver[8] = 0;
   o->name[15] = 0; o->ver[7] = 0;
@@ -141,7 +141,11 @@ struct Marshal {
     if (v.type == DRV_STR || v.type == DRV_BLOB) {
       len = v.len;
       if (strOff + len + 1 > DRV_VM_SCRATCH) return false;
-      memcpy(S + strOff, v.v.p, len); S[strOff + len] = 0;
+      if (len > 0) {
+        if (!v.v.p) return false;
+        memcpy(S + strOff, v.v.p, len);
+      }
+      S[strOff + len] = 0;
       w = guest(strOff); strOff += (len + 4) & ~3u;
     } else if (v.type == DRV_INT || v.type == DRV_BOOL) w = (uint32_t)v.v.i;
     memcpy(S + off + 2, &len, 2); put32(S + off + 4, w);
@@ -187,6 +191,7 @@ static bool loadNative(const Parsed& p, const uint8_t* b, size_t fileSize, int s
   if (!good) { heap_caps_free(mem); if (err) *err = "bad driver ops"; return false; }
   strncpy(d.name, p.name, 15); strncpy(d.version, p.ver, 7);
   d.fileSize = (uint32_t)fileSize; d.memSize = (uint32_t)asz; d.mem = mem; d.native = true;
+  if (g_used[slot]) unloadSlot(slot);
   g_drv[slot] = d; g_used[slot] = true;
   return true;
 }
@@ -198,9 +203,11 @@ static bool vmRun(DrvEntry* d, uint32_t fn, const uint32_t* a, int n, uint32_t* 
 }
 
 int drv_vm_open(DrvEntry* d, const drv_kv_t* cfg, int ncfg, uint32_t* ctx) {
+  if (ncfg < 0 || ncfg > DRV_MAX_ARGS) return DRV_E_ARGS;
   if (d->native) { void* c = nullptr; int rc = ((int (*)(void**, const drv_api_t*, const drv_kv_t*, int))(uintptr_t)d->ops.open)(&c, drv_native_api(), cfg, ncfg); *ctx = (uint32_t)(uintptr_t)c; return rc; }
   Marshal m(&d->vm);
-  uint32_t kvOff = m.strOff; m.strOff += 12 * (uint32_t)ncfg;
+  if (m.strOff + 12u * (uint32_t)ncfg > DRV_VM_SCRATCH) return DRV_E_ARGS;
+  uint32_t kvOff = m.strOff; m.strOff += 12u * (uint32_t)ncfg;
   for (int i = 0; i < ncfg; i++) {
     size_t kl = strlen(cfg[i].key);
     if (m.strOff + kl + 1 > DRV_VM_SCRATCH) return DRV_E_ARGS;
@@ -215,11 +222,13 @@ int drv_vm_open(DrvEntry* d, const drv_kv_t* cfg, int ncfg, uint32_t* ctx) {
 }
 
 int drv_vm_invoke(DrvEntry* d, int mi, uint32_t ctx, const drv_val_t* args, int nargs, drv_val_t* ret, int* nret) {
+  if (nargs < 0 || nargs > DRV_MAX_ARGS) return DRV_E_ARGS;
   if (d->native) {
     *nret = 0;
     int rc = ((drv_fn_t)(uintptr_t)d->ops.methods[mi].fn)((void*)(uintptr_t)ctx, args, nargs, ret, nret);
     if (*nret < 0) *nret = 0; if (*nret > DRV_MAX_ARGS) *nret = DRV_MAX_ARGS;
-    for (int i = 0; i < *nret; i++) if (ret[i].type == DRV_STR || ret[i].type == DRV_BLOB) ret[i].v.p = dram(ret[i].v.p);
+    for (int i = 0; i < *nret; i++)
+      if ((ret[i].type == DRV_STR || ret[i].type == DRV_BLOB) && ret[i].v.p) ret[i].v.p = dram(ret[i].v.p);
     return rc;
   }
   Marshal m(&d->vm);
@@ -250,13 +259,14 @@ void drv_vm_close(DrvEntry* d, uint32_t ctx) {
 }
 
 // ينسخ الصورة إلى ذاكرة الدرايفر الخاصة ويطبّق إعادة التموضع ويشغّل drv_entry داخل المفسّر
+// لا يُفرغ الخانة القديمة إلا بعد نجاح تهيئة النسخة الجديدة بالكامل
 static bool loadBuf(const uint8_t* b, size_t len, size_t fileSize, String* err) {
+  Lock l;
   Parsed p;
   if (!parse(b, len, &p, err)) return false;
   int slot = slotOf(p.name);
   if (slot >= 0) {
     if (g_drv[slot].users > 0) { if (err) *err = "driver in use"; return false; }
-    unloadSlot(slot);
   } else {
     for (int i = 0; i < DRV_MAX_LOADED; i++) if (!g_used[i]) { slot = i; break; }
     if (slot < 0) { if (err) *err = "too many drivers"; return false; }
@@ -288,11 +298,14 @@ static bool loadBuf(const uint8_t* b, size_t len, size_t fileSize, String* err) 
   int nm = good ? (int)get32(o + 16) : 0;
   good = good && nm > 0 && nm <= DRV_MAX_METHODS;
   d.ops.nmethods = nm;
+  auto validCodeAddr = [&](uint32_t a) -> bool {
+    return a >= DRV_GBASE && a - DRV_GBASE <= p.imgLen - 4 && !(a & 3);
+  };
   if (good) {
     d.ops.name = drv_vm_str(&d.vm, get32(o + 4), 32);
     d.ops.info = drv_vm_str(&d.vm, get32(o + 8), 96);
     d.ops.open = get32(o + 20); d.ops.close = get32(o + 24);
-    good = d.ops.name && d.ops.info && d.ops.open - DRV_GBASE < p.imgLen && d.ops.close - DRV_GBASE < p.imgLen;
+    good = d.ops.name && d.ops.info && validCodeAddr(d.ops.open) && validCodeAddr(d.ops.close);
   }
   for (int i = 0; good && i < nm; i++) {
     const uint8_t* me = drv_vm_ptr(&d.vm, get32(o + 12) + 12u * i, 12);
@@ -300,7 +313,7 @@ static bool loadBuf(const uint8_t* b, size_t len, size_t fileSize, String* err) 
     if (!good) break;
     DrvMethodInfo& m = d.ops.methods[i];
     m.name = drv_vm_str(&d.vm, get32(me), 32); m.sig = drv_vm_str(&d.vm, get32(me + 4), DRV_MAX_ARGS + 1); m.fn = get32(me + 8);
-    good = m.name && m.sig && m.fn - DRV_GBASE < p.imgLen;
+    good = m.name && m.sig && validCodeAddr(m.fn);
     bool optional = false;
     for (const char* c = m.sig; good && *c; c++) {
       char l = (char)tolower((unsigned char)*c);
@@ -311,17 +324,20 @@ static bool loadBuf(const uint8_t* b, size_t len, size_t fileSize, String* err) 
   if (!good) { free(mem); if (err) *err = "bad driver ops"; return false; }
   strncpy(d.name, p.name, 15); strncpy(d.version, p.ver, 7);
   d.fileSize = (uint32_t)fileSize; d.memSize = (uint32_t)asz;
+  if (g_used[slot]) unloadSlot(slot);
   g_drv[slot] = d; g_used[slot] = true;
   return true;
 }
 
 static uint8_t* readFile(const String& path, size_t* n) {
   File f = LittleFS.open(path, "r");
-  if (!f || f.isDirectory() || f.size() < HDR + SIG || f.size() > DRV_MAX_FILE) return nullptr;
+  if (!f || f.isDirectory() || f.size() < HDR + SIG || f.size() > DRV_MAX_FILE) { if (f) f.close(); return nullptr; }
   size_t sz = f.size();
   uint8_t* buf = (uint8_t*)malloc(sz);
-  if (!buf) return nullptr;
-  if (f.read(buf, sz) != sz) { free(buf); return nullptr; }
+  if (!buf) { f.close(); return nullptr; }
+  size_t r = f.read(buf, sz);
+  f.close();
+  if (r != sz) { free(buf); return nullptr; }
   *n = sz; return buf;
 }
 
@@ -329,7 +345,7 @@ static uint8_t* readFile(const String& path, size_t* n) {
 #define LOADING_MARK DRV_DIR "/.loading"
 void drv_boot_load() {
   if (!g_mux) g_mux = xSemaphoreCreateRecursiveMutex();
-  { File mf = LittleFS.open(DRV_DIR "/.mode", "r"); if (mf) { String m = mf.readString(); m.trim(); mf.close(); if (m == "vm" || m == "native" || m == "auto") strcpy(g_mode, m.c_str()); } }
+  { File mf = LittleFS.open(DRV_DIR "/.mode", "r"); if (mf) { String m = mf.readString(); m.trim(); mf.close(); if (m == "vm" || m == "native" || m == "auto") strlcpy(g_mode, m.c_str(), sizeof(g_mode)); } }
   if (!LittleFS.exists(DRV_DIR)) return;
   if (LittleFS.exists(LOADING_MARK)) {
     File m = LittleFS.open(LOADING_MARK, "r");
@@ -338,11 +354,15 @@ void drv_boot_load() {
     if (bad.length() && LittleFS.exists(bad)) { LittleFS.rename(bad, bad + ".bad"); Serial.printf("[drv] quarantined %s\n", bad.c_str()); }
   }
   File dir = LittleFS.open(DRV_DIR);
-  if (!dir || !dir.isDirectory()) return;
+  if (!dir || !dir.isDirectory()) { if (dir) dir.close(); return; }
   String names[DRV_MAX_LOADED + 4]; int n = 0;
-  for (File f = dir.openNextFile(); f && n < DRV_MAX_LOADED + 4; f = dir.openNextFile()) {
-    String nm = f.name(); if (nm.endsWith(".drv")) names[n++] = String(DRV_DIR "/") + nm;
+  for (File f = dir.openNextFile(); f; f = dir.openNextFile()) {
+    String nm = f.name();
+    f.close();
+    if (nm.endsWith(".tmp")) LittleFS.remove(String(DRV_DIR "/") + nm);
+    else if (nm.endsWith(".drv") && n < DRV_MAX_LOADED + 4) names[n++] = String(DRV_DIR "/") + nm;
   }
+  dir.close();
   for (int i = 0; i < n; i++) {
     File m = LittleFS.open(LOADING_MARK, "w"); if (m) { m.print(names[i]); m.close(); }
     size_t len; uint8_t* buf = readFile(names[i], &len);
@@ -359,13 +379,17 @@ bool drv_install(const uint8_t* buf, size_t len, String* err) {
   Lock l;
   Parsed p;
   if (!parse(buf, len, &p, err)) return false;
-  if (LittleFS.totalBytes() - LittleFS.usedBytes() < len + 4096) { if (err) *err = "no space"; return false; }
+  size_t total = LittleFS.totalBytes(), used = LittleFS.usedBytes();
+  if (total < used || total - used < len + 4096) { if (err) *err = "no space"; return false; }
   if (!LittleFS.exists(DRV_DIR)) LittleFS.mkdir(DRV_DIR);
   String path = String(DRV_DIR "/") + p.name + ".drv";
-  if (!loadBuf(buf, len, len, err)) return false;          // يرفض إن كان مستعملًا قبل أن نلمس الملف
-  File f = LittleFS.open(path, "w");
-  if (!f || f.write(buf, len) != len) { if (f) f.close(); LittleFS.remove(path); drv_remove(p.name, nullptr); if (err) *err = "write failed"; return false; }
+  String tmpPath = path + ".tmp";
+  File f = LittleFS.open(tmpPath, "w");
+  if (!f || f.write(buf, len) != len) { if (f) f.close(); LittleFS.remove(tmpPath); if (err) *err = "write failed"; return false; }
   f.close();
+  if (!loadBuf(buf, len, len, err)) { LittleFS.remove(tmpPath); return false; }
+  if (LittleFS.exists(path)) LittleFS.remove(path);
+  if (!LittleFS.rename(tmpPath, path)) { LittleFS.remove(tmpPath); if (err) *err = "write failed"; return false; }
   return true;
 }
 
