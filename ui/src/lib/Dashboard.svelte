@@ -2,6 +2,7 @@
   import { api, session } from '../api.js';
   import { t } from '../store.svelte.js';
   import Icon from './Icon.svelte';
+  import SignalBars from './SignalBars.svelte';
   let { role } = $props();
 
   let ram = $state(0);
@@ -85,7 +86,7 @@
         <div class="stat-item"><span class="stat-label">IP</span><span class="stat-val" style="direction:ltr;text-align:start">{net.ip}</span></div>
         {#if net.ssid}<div class="stat-item"><span class="stat-label">{t('الشبكة')}</span><span class="stat-val">{net.ssid}</span></div>{/if}
         {#if net.status}<div class="stat-item"><span class="stat-label">{t('الحالة')}</span><span class="stat-val">{net.status}</span></div>{/if}
-        {#if net.rssi}<div class="stat-item"><span class="stat-label">{t('الإشارة')}</span><span class="stat-val" style="direction:ltr;text-align:start">{net.rssi} dBm</span></div>{/if}
+        {#if net.rssi}<div class="stat-item"><span class="stat-label">{t('الإشارة')}</span><span class="stat-val row" style="gap:8px;flex-wrap:nowrap"><SignalBars rssi={net.rssi} /><span style="direction:ltr">{net.rssi} dBm</span></span></div>{/if}
       </div>
     {:else}
       <span style="color:var(--muted);font-size:13px">{t('لا توجد بيانات (قد يكون الواي فاي قيد الضبط)')}</span>

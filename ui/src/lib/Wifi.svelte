@@ -3,6 +3,7 @@
   import { t } from '../store.svelte.js';
   import PassInput from './PassInput.svelte';
   import Icon from './Icon.svelte';
+  import SignalBars from './SignalBars.svelte';
 
   let f = $state({ mode: 'AP', ap_ssid: '', ap_pass: '', nets: [] });
   const MAX_NETS = 6;
@@ -70,7 +71,7 @@
     {#each found as n}
       <div class="net" role="button" tabindex="0" onclick={() => addNet(n.ssid)} onkeydown={(e) => e.key === 'Enter' && addNet(n.ssid)}>
         <span class="row" style="gap:6px">{n.ssid} {#if n.secure}<Icon name="lock" size={13} />{/if}</span>
-        <span style="color:var(--muted);direction:ltr">{n.rssi} dBm</span>
+        <span class="row" style="gap:8px;flex-wrap:nowrap;direction:ltr"><SignalBars rssi={n.rssi} /><span style="color:var(--muted)">{n.rssi} dBm</span></span>
       </div>
     {/each}
   {/if}
