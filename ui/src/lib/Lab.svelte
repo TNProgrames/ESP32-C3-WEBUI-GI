@@ -162,7 +162,7 @@
 
   <div class="row" style="margin:10px 0">
     <button class="btn" onclick={run} disabled={busy}>
-      <Icon name={lab.asLib ? 'box' : 'play'} size={15} /> {lab.asLib ? t('حفظ المكتبة') : t('حفظ وتشغيل')}
+      <Icon name={lab.asLib ? 'box' : 'play'} size={15} mono={true} /> {lab.asLib ? t('حفظ المكتبة') : t('حفظ وتشغيل')}
     </button>
     <button class="btn ghost" onclick={() => stop('all')}><Icon name="stop" size={15} /> {t('إيقاف الكل')}</button>
     <button class="btn ghost" onclick={() => go('panels')}><Icon name="layout" size={15} /> {t('اللوحات')}</button>

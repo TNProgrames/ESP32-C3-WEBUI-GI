@@ -41,19 +41,19 @@
   {:else}
     <div class="glass topbar">
       <div class="brand">
-        <div class="brand-mark"><Icon name="cpu" size={18} /></div>
+        <div class="brand-mark"><Icon name="cpu" size={20} /></div>
         <div>
           <strong style="display:block;font-size:14px;line-height:1.2">ESP32-C3</strong>
           <span style="color:var(--muted);font-size:11px">{role === 'admin' ? t('مدير') : t('مستخدم')}</span>
         </div>
       </div>
-      <button class="btn ghost sm" onclick={logout}><Icon name="logout" size={14} /> {t('خروج')}</button>
+      <button class="btn ghost sm" onclick={logout}><Icon name="logout" size={15} /> {t('خروج')}</button>
     </div>
 
     <div class="tabs">
       {#each tabs.filter(x => !x.admin || role === 'admin') as x}
-        <button class="btn" class:ghost={tab !== x.id} onclick={() => (tab = x.id)}>
-          <Icon name={x.icon} size={15} /> {t(x.label)}
+        <button class="btn tab-btn" class:active={tab === x.id} onclick={() => (tab = x.id)}>
+          <Icon name={x.icon} size={16} /> {t(x.label)}
         </button>
       {/each}
     </div>

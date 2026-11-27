@@ -118,12 +118,11 @@ input[type="checkbox"] { width: auto; accent-color: var(--primary); cursor: poin
 }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: rgba(79, 70, 229, .14);
-  border: 1px solid rgba(79, 70, 229, .28);
-  color: var(--primary);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -132,6 +131,24 @@ input[type="checkbox"] { width: auto; accent-color: var(--primary); cursor: poin
 
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
 .tabs .btn { flex: 1 1 auto; min-width: max-content; }
+.btn.tab-btn {
+  background: var(--panel);
+  border-color: var(--border);
+  color: var(--muted);
+}
+.btn.tab-btn:hover:not(:disabled) {
+  background: rgba(148, 163, 184, .1);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.btn.tab-btn.active {
+  background: rgba(79, 70, 229, .15);
+  border-color: rgba(79, 70, 229, .55);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+[data-theme="light"] .btn.tab-btn { background: var(--panel); }
+[data-theme="light"] .btn.tab-btn.active { background: rgba(79, 70, 229, .09); color: #312e81; }
 
 .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 .grid-2 > .glass { margin-bottom: 0; }
@@ -151,15 +168,14 @@ input[type="checkbox"] { width: auto; accent-color: var(--primary); cursor: poin
 .stat-val { font-weight: 600; font-size: 13px; color: var(--text); word-break: break-word; }
 
 .icon-badge {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(79, 70, 229, .12);
-  border: 1px solid rgba(79, 70, 229, .22);
-  color: var(--primary);
+  background: var(--panel-2);
+  border: 1px solid var(--border-strong);
   flex: none;
 }
 

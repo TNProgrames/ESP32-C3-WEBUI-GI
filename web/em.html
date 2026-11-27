@@ -211,15 +211,15 @@
                 </button>
                 <input type="file" id="ota-input" class="hidden" accept=".bin" onchange="otaFs()">
                 <button class="btn btn-amber" onclick="document.getElementById('ota-input').click()">
-                    <svg class="ic" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    <svg class="ic" viewBox="0 0 24 24"><path d="M12 14.5 2.5 9.5 12 4.5l9.5 5-9.5 5Z" fill="#f59e0b"/><path d="m2.5 13.2 9.5 4.8 9.5-4.8" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="m2.5 16.8 9.5 4.7 9.5-4.7" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span data-t>تحديث الواجهة</span>
                 </button>
                 <button class="btn btn-red" onclick="formatFS()">
-                    <svg class="ic" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <svg class="ic" viewBox="0 0 24 24"><path d="M9 3h6l1 2h4.5v2H3.5V5H8l1-2Z" fill="rgba(255,255,255,.85)"/><path d="M5.5 8h13l-1 11.5a2 2 0 0 1-2 1.8h-7a2 2 0 0 1-2-1.8L5.5 8Z" fill="currentColor"/></svg>
                     <span data-t>تهيئة</span>
                 </button>
                 <button class="btn btn-ghost" onclick="logout()">
-                    <svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <svg class="ic" viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5" stroke="#94a3b8" stroke-width="2.3" stroke-linecap="round"/><path d="M15.5 7.5 21 12l-5.5 4.5v-3H9v-3h6.5v-3Z" fill="#f43f5e"/></svg>
                     <span data-t>خروج</span>
                 </button>
             </div>
@@ -310,15 +310,15 @@
     <script>
         let currentPath = "/";
 
-        const svgSun = '<svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
-        const svgMoon = '<svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-        const svgHome = '<svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
-        const svgUp = '<svg class="ic" style="color:var(--muted)" viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>';
-        const svgDir = '<svg class="ic" style="color:var(--warning)" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
-        const svgFile = '<svg class="ic" style="color:var(--primary)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
-        const svgDL = '<svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
-        const svgEdit = '<svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-        const svgDel = '<svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+        const svgSun = '<svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#f59e0b"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7" stroke="#fbbf24" stroke-width="2.3" stroke-linecap="round"/></svg>';
+        const svgMoon = '<svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M20.6 13.8A8.8 8.8 0 1 1 10.2 3.4a7 7 0 0 0 10.4 10.4Z" fill="#818cf8"/><circle cx="17.5" cy="5.5" r="1.4" fill="#fbbf24"/></svg>';
+        const svgHome = '<svg class="ic" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1.5 1.5 0 0 1-1.5 1.5H15v-6.5h-6v6.5H4.5A1.5 1.5 0 0 1 3 20v-9.5Z" fill="#6366f1"/></svg>';
+        const svgUp = '<svg class="ic" viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4" stroke="#38bdf8" stroke-width="2.2"/><path d="M20 20v-7a4 4 0 0 0-4-4H4" stroke="#38bdf8" stroke-width="2.2"/></svg>';
+        const svgDir = '<svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M2.5 6a2.2 2.2 0 0 1 2.2-2.2h4.6l2 2.4h8a2.2 2.2 0 0 1 2.2 2.2V18a2.2 2.2 0 0 1-2.2 2.2H4.7A2.2 2.2 0 0 1 2.5 18V6Z" fill="#f59e0b"/><rect x="2.5" y="8" width="19" height="12.2" rx="2.2" fill="#fbbf24"/></svg>';
+        const svgFile = '<svg class="ic" style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M6 2.5h8l5.5 5.5V20a1.8 1.8 0 0 1-1.8 1.8H6A1.8 1.8 0 0 1 4.2 20V4.3A1.8 1.8 0 0 1 6 2.5Z" fill="#6366f1"/><path d="M14 2.5V8h5.5L14 2.5Z" fill="#a5b4fc"/><rect x="7.5" y="12" width="9" height="1.8" rx=".9" fill="#e0e7ff"/><rect x="7.5" y="15.5" width="6.5" height="1.8" rx=".9" fill="#c7d2fe"/></svg>';
+        const svgDL = '<svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="#10b981" stroke-width="2.4" stroke-linecap="round"/><path d="M10 3h4v6.5h3.7L12 15.8 6.3 9.5H10V3Z" fill="#34d399"/></svg>';
+        const svgEdit = '<svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M4 16.5V20h3.5L18.4 9.1l-3.5-3.5L4 16.5Z" fill="#3b82f6"/><path d="M19.8 7.7a1.5 1.5 0 0 0 0-2.1l-1.4-1.4a1.5 1.5 0 0 0-2.1 0l-1.3 1.3 3.5 3.5 1.3-1.3Z" fill="#fbbf24"/></svg>';
+        const svgDel = '<svg class="ic" style="width:15px;height:15px" viewBox="0 0 24 24"><path d="M9 3h6l1 2h4.5v2H3.5V5H8l1-2Z" fill="#f87171"/><path d="M5.5 8h13l-1 11.5a2 2 0 0 1-2 1.8h-7a2 2 0 0 1-2-1.8L5.5 8Z" fill="#ef4444"/></svg>';
 
         const EN = {
             'مدير الملفات': 'File manager', 'رفع': 'Upload', 'ملف': 'File', 'مجلد': 'Folder', 'تهيئة': 'Format',

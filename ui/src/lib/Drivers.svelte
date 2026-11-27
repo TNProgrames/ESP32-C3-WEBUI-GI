@@ -153,7 +153,7 @@
   <h2 style="margin:0 0 10px"><Icon name="store" size={17} /> {t('متجر التطبيقات')}</h2>
   <div class="row" style="gap:6px">
     {#each [['apps', 'grid', 'التطبيقات'], ['drivers', 'plug', 'الدرايفرات'], ['settings', 'settings', 'الإعدادات']] as [id, ic, lb]}
-      <button class="btn {tab === id ? '' : 'ghost'}" style="flex:1" onclick={() => (tab = id)}>
+      <button class="btn tab-btn" class:active={tab === id} style="flex:1" onclick={() => (tab = id)}>
         <Icon name={ic} size={15} /> {t(lb)}
       </button>
     {/each}
@@ -183,7 +183,7 @@
       {/each}
     </div>
     <div class="row" style="gap:6px;margin-top:10px">
-      <button class="btn" disabled={slotAsk.pick.length < slotAsk.need} onclick={slotConfirm}><Icon name="trash" size={14} /> {t('احذف وأكمل التثبيت')}</button>
+      <button class="btn" disabled={slotAsk.pick.length < slotAsk.need} onclick={slotConfirm}><Icon name="trash" size={14} mono={true} /> {t('احذف وأكمل التثبيت')}</button>
       <button class="btn ghost" onclick={() => (slotAsk = null)}>{t('إلغاء')}</button>
     </div>
   </div>
@@ -212,7 +212,7 @@
 <div class="glass">
   <h3 style="margin:0 0 8px"><Icon name="upload" size={16} /> {t('رفع ملف درايفر')}</h3>
   <input type="file" accept=".drv" onchange={(e) => (file = e.currentTarget.files[0])} disabled={busy} />
-  <div style="margin-top:10px"><button class="btn" onclick={upload} disabled={busy || !file}><Icon name="upload" size={14} /> {t('تثبيت')}</button></div>
+  <div style="margin-top:10px"><button class="btn" onclick={upload} disabled={busy || !file}><Icon name="upload" size={14} mono={true} /> {t('تثبيت')}</button></div>
 </div>
 
 <div class="glass">

@@ -47,21 +47,21 @@
 </script>
 
 <div class="glass">
-  <h2><Icon name="upload" size={17} /> {t('تحديث البرنامج (firmware)')}</h2>
+  <h2><Icon name="upload" size={18} /> {t('تحديث البرنامج (firmware)')}</h2>
   <label for="fw">{t('الملف firmware-*.bin')}</label>
   <input id="fw" type="file" accept=".bin" onchange={(e) => (fwFile = e.currentTarget.files[0])} disabled={busy} />
   <div style="margin-top:14px">
-    <button class="btn green" disabled={busy || !fwFile} onclick={() => run(fwFile, 'fw')}><Icon name="upload" size={15} /> {t('رفع وتحديث')}</button>
+    <button class="btn green" disabled={busy || !fwFile} onclick={() => run(fwFile, 'fw')}><Icon name="upload" size={15} mono={true} /> {t('رفع وتحديث')}</button>
   </div>
 </div>
 
 <div class="glass">
-  <h2><Icon name="layers" size={17} /> {t('تحديث الواجهة (littlefs)')}</h2>
+  <h2><Icon name="layers" size={18} /> {t('تحديث الواجهة (littlefs)')}</h2>
   <label for="fs">{t('الملف littlefs-*.bin')}</label>
   <input id="fs" type="file" accept=".bin" onchange={(e) => (fsFile = e.currentTarget.files[0])} disabled={busy} />
   <p style="font-size:12px;color:var(--warning);margin-top:8px">{t('تحذير: هذا يمسح الإعدادات وكلمات المرور المحفوظة ويعيدها للافتراضي.')}</p>
   <div style="margin-top:14px">
-    <button class="btn green" disabled={busy || !fsFile} onclick={() => run(fsFile, 'fs')}><Icon name="upload" size={15} /> {t('رفع وتحديث')}</button>
+    <button class="btn green" disabled={busy || !fsFile} onclick={() => run(fsFile, 'fs')}><Icon name="upload" size={15} mono={true} /> {t('رفع وتحديث')}</button>
   </div>
 </div>
 

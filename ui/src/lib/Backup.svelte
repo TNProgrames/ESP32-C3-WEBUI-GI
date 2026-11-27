@@ -41,17 +41,17 @@
 </script>
 
 <div class="glass">
-  <h2><Icon name="save" size={17} /> {t('نسخة احتياطية')}</h2>
+  <h2><Icon name="save" size={18} /> {t('نسخة احتياطية')}</h2>
   <p style="font-size:12px;color:var(--muted);margin-bottom:12px">{t('تحفظ الإعدادات (الواي فاي، الاتصال، PIN) وكلمات المرور في ملف JSON واحد.')}</p>
-  <button class="btn green" onclick={download} disabled={busy}><Icon name="download" size={15} /> {t('تنزيل النسخة الاحتياطية')}</button>
+  <button class="btn green" onclick={download} disabled={busy}><Icon name="download" size={15} mono={true} /> {t('تنزيل النسخة الاحتياطية')}</button>
   <p style="font-size:12px;color:var(--warning);margin-top:10px">{t('تنبيه: الملف يحتوي كلمات المرور كنص صريح، فاحفظه في مكان آمن.')}</p>
 </div>
 
 <div class="glass">
-  <h2><Icon name="refresh" size={17} /> {t('استعادة')}</h2>
+  <h2><Icon name="refresh" size={18} /> {t('استعادة')}</h2>
   <label for="r">{t('ملف النسخة الاحتياطية (.json)')}</label>
   <input id="r" type="file" accept=".json,application/json" onchange={(e) => (file = e.currentTarget.files[0])} disabled={busy} />
-  <div style="margin-top:14px"><button class="btn" onclick={restore} disabled={busy || !file}><Icon name="upload" size={15} /> {t('استعادة وإعادة التشغيل')}</button></div>
+  <div style="margin-top:14px"><button class="btn" onclick={restore} disabled={busy || !file}><Icon name="upload" size={15} mono={true} /> {t('استعادة وإعادة التشغيل')}</button></div>
 </div>
 
 <div class="msg" class:ok class:err={!ok}>{msg}</div>
