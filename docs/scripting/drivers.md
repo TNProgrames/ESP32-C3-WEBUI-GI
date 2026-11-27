@@ -58,7 +58,7 @@ ESP32-C3 مع Arduino **لا توفّر ذاكرة قابلة للتنفيذ** (
 
 - **القائمة:** الاسم والإصدار والحجم والذاكرة ووصف الدرايفر وجدول دوالـه (بأنواع معاملاتها)، وزر حذف (معطَّل ما دام الدرايفر مفتوحًا).
 - **رفع ملف:** اختر `.drv` وثبّته؛ يظهر سبب الرفض (مثل `bad signature`).
-- **المتجر:** يجلب المتصفح (لا الجهاز) `index.json` من العنوان المكتوب (الافتراضي `drivers/index.json` في المستودع على raw.githubusercontent.com، ويعمل حين يكون المستودع عامًا ويكون هاتفك متصلًا بالإنترنت)، ثم يعرض: تثبيت / تحديث / مثبّت. الفهرس تُنتجه `python3 tools/drv/make_index.py` من `drivers/build/`.
+- **المتجر:** يجلب المتصفح (لا الجهاز) `index.json` من العنوان المكتوب (الافتراضي `drivers/apps/index.json` في المستودع على raw.githubusercontent.com، ويعمل حين يكون المستودع عامًا ويكون هاتفك متصلًا بالإنترنت)، ثم يعرض: تثبيت / تحديث / مثبّت. الفهرس تُنتجه `python3 tools/drv/build_index.py` في `drivers/apps/`.
 - **اختبار:** اختر الدرايفر والدالة، واكتب SDA وSCL وإعداد الدرايفر (سطر لكل `مفتاح=قيمة`) وقيم المعاملات. تتولد شيفرة Lua وتُشغَّل كسكريبت مؤقت اسمه `drvtest`، وتظهر نتيجتها في الطرفية بالأسفل. زر «فتح في المختبر» ينقل الشيفرة للتعديل.
 
 ## مسارات HTTP (للمدير فقط، رأسا `User_Token` و`User_Role`)
@@ -75,8 +75,8 @@ ESP32-C3 مع Arduino **لا توفّر ذاكرة قابلة للتنفيذ** (
 ## بناء درايفر
 
 ```
-python3 tools/drv/build_drv.py drivers/lcd1602 --version 1.0   # ينتج drivers/build/lcd1602.drv
-python3 tools/drv/test_emu.py drivers/build/lcd1602.drv          # اختبار على الحاسوب بمحاكي RV32IM
+python3 tools/drv/build_drv.py drivers/lcd1602 --version 1.0   # ينتج drivers/apps/lcd1602.drv
+python3 tools/drv/test_emu.py drivers/apps/lcd1602.drv          # اختبار على الحاسوب بمحاكي RV32IM
 ```
 يحتاج `clang` يدعم riscv32 و`ld.lld` ومكتبة `cryptography` في بايثون. المفتاح الخاص في المستودع عمدًا (`tools/drv/drv_key.pem`) لأن المشروع مفتوح المصدر؛ والتوقيع هنا حماية من التلف واختلاف الإصدار لا إثبات للمصدر. لتوليد مفتاح جديد: `gen_key.py --force` (يبطل كل الدرايفرات الموقّعة سابقًا).
 
@@ -128,8 +128,8 @@ lcd:close()                                               -- اختياري: ي�
 أضافت `spi_write` `spi_transfer` `gpio_mode` `gpio_write` `gpio_read` (الدرايفر لا يلمس إلا الأرجل التي يملكها السكريبت). أخطاء جديدة: `"pin_unavailable"` `"spi_not_started"`. ناقل SPI من Lua: `spi.begin(sck,mosi,miso)` / `spi.stop()`.
 
 ## الفهرس والمتجر
-- CI يبني ويوقّع الدرايفرات (`tools/drv/build_index.py`) فينتج `drivers/build/*.drv` و`index.json` (الاسم، النسخة، api، الحجم، sha256، الدوال).
-- `ui/src/drvstore.js` يجلب الفهرس من `raw.githubusercontent.com/TNProgrames/ESP32-C3-WEBUI/main/drivers/build/index.json` ويتحقق من sha256 ثم يرفع الملف إلى `/drv/install`.
+- CI يبني ويوقّع الدرايفرات (`tools/drv/build_index.py`) فينتج `drivers/apps/*.drv` و`index.json` (الاسم، النسخة، api، الحجم، sha256، الدوال).
+- `ui/src/drvstore.js` يجلب الفهرس من `/drivers/apps/index.json` ويتحقق من sha256 ثم يرفع الملف إلى `/drv/install`.
 - ⚠️ يتطلب مستودعًا **عامًا** واتصال إنترنت على الهاتف؛ يمكن تغيير العنوان من التبويب.
 
 ---|---|---|

@@ -1,5 +1,5 @@
 // اختبار المفسّر على الحاسوب: يحمّل كل .drv، يفتحه، ويستدعي كل دواله بمعاملات نموذجية.
-// البناء: g++ -std=gnu++17 -O2 -Isrc tools/drv/test_vm.cpp src/drv_vm.cpp -o /tmp/test_vm && /tmp/test_vm drivers/build/*.drv
+// البناء: g++ -std=gnu++17 -O2 -Isrc tools/drv/test_vm.cpp src/drv_vm.cpp -o /tmp/test_vm && /tmp/test_vm drivers/apps/*.drv
 #include "drv_vm.h"
 #include <stdio.h>
 #include <stdlib.h>

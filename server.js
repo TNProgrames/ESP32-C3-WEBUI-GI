@@ -12,7 +12,7 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 // ---------- Load Store Index for Driver Metadata ----------
 let storeIndex = { version: 1, drivers: [], apps: [] };
 try {
-  storeIndex = JSON.parse(fs.readFileSync(path.join(__dirname, 'drivers/build/index.json'), 'utf8'));
+  storeIndex = JSON.parse(fs.readFileSync(path.join(__dirname, 'drivers/apps/index.json'), 'utf8'));
 } catch {}
 
 // ---------- In-Memory LittleFS Simulation ----------
@@ -663,8 +663,8 @@ function runScript(name, code) {
 // ---------- Express App Setup ----------
 const app = express();
 
-// Serve drivers/build locally for the App & Driver Store
-app.use('/drivers/build', express.static(path.join(__dirname, 'drivers/build')));
+// Serve drivers/apps locally for the App & Driver Store
+app.use('/drivers/apps', express.static(path.join(__dirname, 'drivers/apps')));
 
 // Raw body middleware for specific binary/text/multipart routes
 const rawBody = express.raw({ type: '*/*', limit: '4mb' });

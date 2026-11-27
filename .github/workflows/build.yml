@@ -44,15 +44,15 @@ jobs:
           sudo apt-get install -y clang lld
           pip install platformio cryptography
 
-      # الدرايفرات في drivers/build (التي يجلبها متجر الواجهة)؛ إن لم تكن مودعة في المستودع تُبنى تلقائياً قبل التحقق
+      # الدرايفرات في drivers/apps (التي يجلبها متجر الواجهة)؛ إن لم تكن مودعة في المستودع تُبنى تلقائياً قبل التحقق
       - name: Verify drivers and store logic
         run: |
-          if [ ! -f drivers/build/index.json ]; then
+          if [ ! -f drivers/apps/index.json ]; then
             python3 tools/drv/build_index.py --version 1.0
           fi
-          python3 tools/drv/test_drivers.py drivers/build
+          python3 tools/drv/test_drivers.py drivers/apps
           g++ -std=gnu++17 -O2 -Isrc tools/drv/test_vm.cpp src/drv_vm.cpp -o /tmp/test_vm
-          /tmp/test_vm drivers/build/*.drv
+          /tmp/test_vm drivers/apps/*.drv
           node tools/drv/test_store.mjs
 
       - name: Build, sign and test drivers from source
@@ -104,7 +104,7 @@ jobs:
           # 4) أدوات التطوير: بناء/توقيع/اختبار الدرايفرات + مصادرها + الوثائق
           mkdir -p pkg/tools/src pkg/tools/docs
           cp -r tools/drv pkg/tools/drv
-          cp -r drivers pkg/tools/drivers && rm -rf pkg/tools/drivers/build
+          cp -r drivers pkg/tools/drivers && rm -rf pkg/tools/drivers/build pkg/tools/drivers/apps
           cp src/drv_api.h src/drv_vm.h src/drv_vm.cpp pkg/tools/src/
           cp docs/ARCHITECTURE.md pkg/tools/docs/ 2>/dev/null || true
           cp docs/scripting/drivers.md docs/scripting/ui.md pkg/tools/docs/

@@ -101,4 +101,4 @@ def build(src_dir, out, version):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(); ap.add_argument('dir'); ap.add_argument('-o'); ap.add_argument('--version', default='1.0')
     a = ap.parse_args()
-    build(a.dir, a.o or os.path.join(ROOT, 'drivers', 'build', os.path.basename(os.path.abspath(a.dir)) + '.drv'), a.version)
+    build(a.dir, a.o or os.path.join(ROOT, 'drivers', 'apps', os.path.basename(os.path.abspath(a.dir)) + '.drv'), a.version)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""يبني كل الدرايفرات في drivers/*/ ويوقّعها وينتج drivers/build/index.json."""
+"""يبني كل الدرايفرات في drivers/*/ ويوقّعها وينتج drivers/apps/index.json."""
 import argparse
 import glob
 import hashlib
@@ -33,7 +33,7 @@ def parse_driver_meta(src_dir):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--version', default='1.0')
-    ap.add_argument('--out-dir', default=os.path.join(ROOT, 'drivers', 'build'))
+    ap.add_argument('--out-dir', default=os.path.join(ROOT, 'drivers', 'apps'))
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -41,7 +41,7 @@ def main():
     entries = []
 
     for name in sorted(os.listdir(drivers_root)):
-        if name == 'build':
+        if name in ('build', 'apps'):
             continue
         src_dir = os.path.join(drivers_root, name)
         if not os.path.isdir(src_dir) or not glob.glob(os.path.join(src_dir, '*.c')):

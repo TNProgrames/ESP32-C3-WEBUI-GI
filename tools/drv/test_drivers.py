@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """اختبار كل الدرايفرات المبنية على الحاسوب بمحاكي RV32IM وواجهة عتاد وهمية.
-الاستعمال: test_drivers.py [مجلد drivers/build]   (يبني نسخًا مؤقتة إن لم يُعطَ مجلد)"""
+الاستعمال: test_drivers.py [مجلد drivers/apps]   (يبني نسخًا مؤقتة إن لم يُعطَ مجلد)"""
 import os, struct, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import test_emu as T

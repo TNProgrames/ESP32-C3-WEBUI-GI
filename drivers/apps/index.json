@@ -1,0 +1,619 @@
+{
+  "version": 1,
+  "drivers": [
+    {
+      "name": "ads1115",
+      "version": "1.0",
+      "api": 2,
+      "size": 1760,
+      "mem": 1588,
+      "sha256": "509c76a0f597e057675e3ce52848580e45ebb6bba27dabd1f5cd56975b3bb71b",
+      "file": "ads1115.drv",
+      "info": "ADS1115 16-bit ADC (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": "i"
+        },
+        {
+          "name": "gain",
+          "sig": "i"
+        }
+      ]
+    },
+    {
+      "name": "aht20",
+      "version": "1.0",
+      "api": 2,
+      "size": 1732,
+      "mem": 1560,
+      "sha256": "eb9ddd9a73ea4d7084ea0e897d04b65aad16122277c1c55585582822376f4198",
+      "file": "aht20.drv",
+      "info": "AHT20 temp/hum (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "info",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "bh1750",
+      "version": "1.0",
+      "api": 2,
+      "size": 1576,
+      "mem": 1404,
+      "sha256": "474e1ffe29c1feddc4c166fd33b266573eff657301f34c188a1eef7fc65f3711",
+      "file": "bh1750.drv",
+      "info": "BH1750 light sensor (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "info",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "bme280",
+      "version": "1.0",
+      "api": 2,
+      "size": 3644,
+      "mem": 3460,
+      "sha256": "adb967b2a6ccd68c9e5faf691543fdfd2f75b77d4cc3a71b7ac69971a18dbf96",
+      "file": "bme280.drv",
+      "info": "BME280/BMP280 temp/press/hum (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "chip_id",
+          "sig": ""
+        },
+        {
+          "name": "info",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "ds3231",
+      "version": "1.0",
+      "api": 2,
+      "size": 2232,
+      "mem": 2048,
+      "sha256": "2e83af144c6792c8cd0e17e6d718d9e93d7ca9aee4c3ec93f3a18ed39cd8da6f",
+      "file": "ds3231.drv",
+      "info": "DS3231 RTC (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "set",
+          "sig": "iiiiii"
+        },
+        {
+          "name": "temp",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "ina219",
+      "version": "1.0",
+      "api": 2,
+      "size": 1536,
+      "mem": 1376,
+      "sha256": "9e2b86fd853d0a3b51772727e827ec59feac8efacb6edc16b5e391e4baa95716",
+      "file": "ina219.drv",
+      "info": "INA219 current/power (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "lcd1602",
+      "version": "1.0",
+      "api": 2,
+      "size": 2580,
+      "mem": 2384,
+      "sha256": "10c301eeada75638cb2341b2a660afade5436cd31c0dc129c8e02d4bb4a5b83b",
+      "file": "lcd1602.drv",
+      "info": "HD44780 16x2 via PCF8574 (I2C)",
+      "methods": [
+        {
+          "name": "clear",
+          "sig": ""
+        },
+        {
+          "name": "text",
+          "sig": "iis"
+        },
+        {
+          "name": "cursor",
+          "sig": "ii"
+        },
+        {
+          "name": "backlight",
+          "sig": "b"
+        }
+      ]
+    },
+    {
+      "name": "mpu6050",
+      "version": "1.0",
+      "api": 2,
+      "size": 1736,
+      "mem": 1564,
+      "sha256": "ca4e76abdd4b5f2b0a91125266fb29ff42e709bda5f89abf93a8950220a61559",
+      "file": "mpu6050.drv",
+      "info": "MPU6050 accel/gyro (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "temp",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "pca9685",
+      "version": "1.0",
+      "api": 2,
+      "size": 2288,
+      "mem": 2092,
+      "sha256": "1349eb06796d07c486507d7196fcb8ce7b9bf3dc8028b6c907238bf16ef8d361",
+      "file": "pca9685.drv",
+      "info": "PCA9685 16-ch PWM/servo (I2C)",
+      "methods": [
+        {
+          "name": "freq",
+          "sig": "i"
+        },
+        {
+          "name": "pwm",
+          "sig": "ii"
+        },
+        {
+          "name": "servo",
+          "sig": "ii"
+        },
+        {
+          "name": "off",
+          "sig": "i"
+        }
+      ]
+    },
+    {
+      "name": "pcf8574",
+      "version": "1.0",
+      "api": 2,
+      "size": 1816,
+      "mem": 1620,
+      "sha256": "7c616fc02fd663c0ca71c00cc571e886c12fbd4761da8bc9d49348960cf23dea",
+      "file": "pcf8574.drv",
+      "info": "PCF8574 8-bit I/O expander (I2C)",
+      "methods": [
+        {
+          "name": "write",
+          "sig": "i"
+        },
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "pin",
+          "sig": "ib"
+        },
+        {
+          "name": "toggle",
+          "sig": "i"
+        }
+      ]
+    },
+    {
+      "name": "sht31",
+      "version": "1.0",
+      "api": 2,
+      "size": 1700,
+      "mem": 1528,
+      "sha256": "d6e4ad1f0714f0eb248375d23d577b4e854fd68f1c9514060285a1137835e51a",
+      "file": "sht31.drv",
+      "info": "SHT3x temp/hum (I2C)",
+      "methods": [
+        {
+          "name": "read",
+          "sig": ""
+        },
+        {
+          "name": "reset",
+          "sig": ""
+        }
+      ]
+    },
+    {
+      "name": "ssd1306",
+      "version": "1.0",
+      "api": 2,
+      "size": 6276,
+      "mem": 6008,
+      "sha256": "bfcea6d57e9fd428a6109c39621127be798ee00c4d633fe4499eb9fbfc2dea5e",
+      "file": "ssd1306.drv",
+      "info": "SSD1306/SH1106 OLED 128x64 (I2C)",
+      "methods": [
+        {
+          "name": "clear",
+          "sig": ""
+        },
+        {
+          "name": "show",
+          "sig": ""
+        },
+        {
+          "name": "pixel",
+          "sig": "iiB"
+        },
+        {
+          "name": "line",
+          "sig": "iiiiB"
+        },
+        {
+          "name": "rect",
+          "sig": "iiiiBB"
+        },
+        {
+          "name": "circle",
+          "sig": "iiiBB"
+        },
+        {
+          "name": "bar",
+          "sig": "iiiii"
+        },
+        {
+          "name": "text",
+          "sig": "iis"
+        },
+        {
+          "name": "invert",
+          "sig": "b"
+        },
+        {
+          "name": "contrast",
+          "sig": "i"
+        }
+      ]
+    },
+    {
+      "name": "st7789",
+      "version": "1.0",
+      "api": 2,
+      "size": 5148,
+      "mem": 4928,
+      "sha256": "c6f33cb8cf11306b5dd4afa046b7e88cf8caac1c6fa7497f85d5fb1549c44403",
+      "file": "st7789.drv",
+      "info": "ST7789 color TFT strip renderer (SPI)",
+      "methods": [
+        {
+          "name": "clear",
+          "sig": "I"
+        },
+        {
+          "name": "pixel",
+          "sig": "iii"
+        },
+        {
+          "name": "rect",
+          "sig": "iiiii"
+        },
+        {
+          "name": "text",
+          "sig": "iisII"
+        },
+        {
+          "name": "backlight",
+          "sig": "b"
+        },
+        {
+          "name": "invert",
+          "sig": "b"
+        }
+      ]
+    }
+  ],
+  "apps": [
+    {
+      "name": "adc_meter",
+      "title": "فولتميتر ADC",
+      "desc": "قراءة جهد 4 مداخل تماثلية GPIO0–3 بالمللي فولت مع أشرطة.",
+      "icon": "📟",
+      "category": "sensors",
+      "driver": "",
+      "drivers": [],
+      "file": "adc_meter.lua",
+      "size": 350,
+      "sha256": "6d4606c6f112e5da144c866d81e0136fdbc7178d04dd4256431a5ea6355c3c10"
+    },
+    {
+      "name": "adc_scope",
+      "title": "راسم إشارة ADS1115",
+      "desc": "راسم إشارة على canvas لقناة من 4 قنوات 16 بت، مع اختيار القناة والمدى.",
+      "icon": "📈",
+      "category": "tools",
+      "driver": "ads1115",
+      "drivers": [
+        "ads1115"
+      ],
+      "file": "adc_scope.lua",
+      "size": 845,
+      "sha256": "9c249959fb54cdb16991456f0c49aa03193332c2537663dd6b385f436c558b1e",
+      "page_file": "adc_scope.html",
+      "page_size": 3227,
+      "page_sha256": "9487cfcf127e1b5013fca9ef2dd83d11b18756ccfc3cc85a71b393bc3da4b4cc"
+    },
+    {
+      "name": "aht_dash",
+      "title": "لوحة حرارة ورطوبة AHT20",
+      "desc": "بطاقات حيّة ورسم بياني على canvas للحرارة والرطوبة، مع اختيار فترة القياس.",
+      "icon": "🌡️",
+      "category": "sensors",
+      "driver": "aht20",
+      "drivers": [
+        "aht20"
+      ],
+      "file": "aht_dash.lua",
+      "size": 793,
+      "sha256": "2acd7b65bd05bbe7b500339573184aab6ed2c1bd2d2b003cccc817c38c5a8335",
+      "page_file": "aht_dash.html",
+      "page_size": 2913,
+      "page_sha256": "9a6ec93ea4f2573924532c1e057a84300827065a64d972fee099270f268767bb"
+    },
+    {
+      "name": "bme_monitor",
+      "title": "مراقب BME280",
+      "desc": "بطاقات الحرارة والضغط والرطوبة مع رسم حرارة حي على canvas.",
+      "icon": "🌤️",
+      "category": "sensors",
+      "driver": "bme280",
+      "drivers": [
+        "bme280"
+      ],
+      "file": "bme_monitor.lua",
+      "size": 650,
+      "sha256": "439af6e7718d9f068b1c900b4f0f79441ddae0379a13bbd9896263681219aff0",
+      "page_file": "bme_monitor.html",
+      "page_size": 2508,
+      "page_sha256": "3ff600d60d6fa4e88cc0e6d737f2bf0138e33b1be0905386982fb9b19c0feedc"
+    },
+    {
+      "name": "gpio_panel",
+      "title": "لوحة أرجل GPIO",
+      "desc": "مفاتيح لأربع أرجل خرج (4,5,6,7) مع حفظ الحالة.",
+      "icon": "🎛️",
+      "category": "tools",
+      "driver": "",
+      "drivers": [],
+      "file": "gpio_panel.lua",
+      "size": 367,
+      "sha256": "ae8b15c7bca7518c7a862e3e61b4d022bab6ad2e3331cc2b75d85965b3fecfa1"
+    },
+    {
+      "name": "io_expander",
+      "title": "موسّع أرجل PCF8574",
+      "desc": "8 أرجل إضافية: مفاتيح تبديل لكل رجل مع عرض الحالة الفعلية.",
+      "icon": "🔘",
+      "category": "tools",
+      "driver": "pcf8574",
+      "drivers": [
+        "pcf8574"
+      ],
+      "file": "io_expander.lua",
+      "size": 759,
+      "sha256": "776ae22b8beb5cc015daaf236ab453ba0161011262c5d393d1cc92cea97e6ff6",
+      "page_file": "io_expander.html",
+      "page_size": 2063,
+      "page_sha256": "322d250e75de1f307f333a308f31926300f3e49dacf9441cfd3c8afc28374d9a"
+    },
+    {
+      "name": "lcd_clock",
+      "title": "ساعة على LCD1602",
+      "desc": "تعرض زمن تشغيل الجهاز على شاشة حروف 16×2 (I2C، عنوان 0x27).",
+      "icon": "🔢",
+      "category": "display",
+      "driver": "lcd1602",
+      "drivers": [
+        "lcd1602"
+      ],
+      "file": "lcd_clock.lua",
+      "size": 408,
+      "sha256": "712caa8e210f27f5f611c14a6bf50084fb1f0be9c547d80afe795b6aaaeaaa19"
+    },
+    {
+      "name": "light_meter",
+      "title": "مقياس الإضاءة BH1750",
+      "desc": "عدّاد قوس على canvas بمقياس لوغاريتمي مع أدنى وأعلى قيمة ووصف مستوى الإضاءة.",
+      "icon": "💡",
+      "category": "sensors",
+      "driver": "bh1750",
+      "drivers": [
+        "bh1750"
+      ],
+      "file": "light_meter.lua",
+      "size": 593,
+      "sha256": "40c96fa67bb514e79e0cd3ec3ba2958ac0655a024e7bc5ab9d30b24cbf08b840",
+      "page_file": "light_meter.html",
+      "page_size": 3452,
+      "page_sha256": "642d2653fa6f79da6b1cd9ce01d07dee15a7bde4975749b98e59288384454d33"
+    },
+    {
+      "name": "oled_hello",
+      "title": "OLED SSD1306",
+      "desc": "يرسم إطارًا ونصًا وزمن التشغيل على شاشة OLED 128×64.",
+      "icon": "🖥️",
+      "category": "display",
+      "driver": "ssd1306",
+      "drivers": [
+        "ssd1306"
+      ],
+      "file": "oled_hello.lua",
+      "size": 417,
+      "sha256": "ee3aec701cc6b93f82e0f77c20515cbdfd55ab3144f16bc42104dfb8afd6d766"
+    },
+    {
+      "name": "power_meter",
+      "title": "قياس الطاقة INA219",
+      "desc": "جهد وتيار وقدرة مع عدّاد طاقة mWh ورسم حيّ.",
+      "icon": "⚡",
+      "category": "sensors",
+      "driver": "ina219",
+      "drivers": [
+        "ina219"
+      ],
+      "file": "power_meter.lua",
+      "size": 737,
+      "sha256": "60361291cb49e9b7c351f97ca27db8b01e260950d93b738aaf7d5f96d7edf944",
+      "page_file": "power_meter.html",
+      "page_size": 2467,
+      "page_sha256": "820bd0f44243550b08d90191ad70e0d1c1d7cebeb216c5ecad5e52a1acaf8c46"
+    },
+    {
+      "name": "pwm_fader",
+      "title": "خافت PWM",
+      "desc": "منزلق سطوع وتردد لرجل GPIO5 (LED أو مروحة).",
+      "icon": "🌗",
+      "category": "tools",
+      "driver": "",
+      "drivers": [],
+      "file": "pwm_fader.lua",
+      "size": 445,
+      "sha256": "3c726df51988f744e9465dfcfde3c156b0adde268802d4224fd890edf785468b"
+    },
+    {
+      "name": "rtc_clock",
+      "title": "ساعة DS3231",
+      "desc": "ساعة تماثلية على canvas مع التاريخ والحرارة، وزر لضبط الوقت من المتصفح.",
+      "icon": "🕒",
+      "category": "time",
+      "driver": "ds3231",
+      "drivers": [
+        "ds3231"
+      ],
+      "file": "rtc_clock.lua",
+      "size": 1240,
+      "sha256": "f68c96e66d681ca62abc370db682aa0832775a51d09978065cabb66b8e33b9a8",
+      "page_file": "rtc_clock.html",
+      "page_size": 3512,
+      "page_sha256": "392a7261702b1948fab4d0861d960a9b559e81e37ed1051105e70043a3bc7a0b"
+    },
+    {
+      "name": "servo_ctrl",
+      "title": "تحكم سيرفو PCA9685",
+      "desc": "4 مفاصل سيرفو بمنزلقات زاوية 0–180° ومنتصف سريع.",
+      "icon": "🦾",
+      "category": "tools",
+      "driver": "pca9685",
+      "drivers": [
+        "pca9685"
+      ],
+      "file": "servo_ctrl.lua",
+      "size": 727,
+      "sha256": "d2173115af1f5fcf0b9bd56b2b39c0610f62d5a317cb2f8f985eea95a976c09a",
+      "page_file": "servo_ctrl.html",
+      "page_size": 2443,
+      "page_sha256": "d6c9e5b8fc18ae7757e2dc45821d53cb36abaf65f604b74f4a276465d68987dd"
+    },
+    {
+      "name": "sht_monitor",
+      "title": "مراقب SHT31 + نقطة الندى",
+      "desc": "حرارة ورطوبة عالية الدقة مع حساب نقطة الندى ورسم حيّ.",
+      "icon": "💧",
+      "category": "sensors",
+      "driver": "sht31",
+      "drivers": [
+        "sht31"
+      ],
+      "file": "sht_monitor.lua",
+      "size": 626,
+      "sha256": "28e6b962f5e02834c14a244b4d822a90c87ac281317b67a195e3fd7b99edd736",
+      "page_file": "sht_monitor.html",
+      "page_size": 2511,
+      "page_sha256": "3fa21d76aa23d3139277d1299d7fa6c60b9d45dc564645f14088dc835e7e1d6b"
+    },
+    {
+      "name": "stopwatch",
+      "title": "ساعة إيقاف",
+      "desc": "ساعة إيقاف مع تسجيل لفّات (Lap).",
+      "icon": "⏱️",
+      "category": "time",
+      "driver": "",
+      "drivers": [],
+      "file": "stopwatch.lua",
+      "size": 874,
+      "sha256": "b481a180489c920a44618b9bbd9197516ff5c7274e2fb99f116a257baadbc703"
+    },
+    {
+      "name": "sys_monitor",
+      "title": "مراقب النظام",
+      "desc": "الذاكرة الحرة وزمن التشغيل وإصدار النظام مباشرة.",
+      "icon": "🖥️",
+      "category": "tools",
+      "driver": "",
+      "drivers": [],
+      "file": "sys_monitor.lua",
+      "size": 547,
+      "sha256": "bf7aab7c55a6dd2c6a44216b8ce1a8541fa3efe39a8146d5c5fc5fba4a7a7a45"
+    },
+    {
+      "name": "tilt_level",
+      "title": "ميزان ميلان MPU6050",
+      "desc": "فقاعة ميزان على canvas وزوايا الميل مع معايرة الصفر.",
+      "icon": "🎯",
+      "category": "sensors",
+      "driver": "mpu6050",
+      "drivers": [
+        "mpu6050"
+      ],
+      "file": "tilt_level.lua",
+      "size": 612,
+      "sha256": "ab7219df579455696b55cacaf5a79c22752d5e86e2617b4594caaf4f4c2549f6",
+      "page_file": "tilt_level.html",
+      "page_size": 2955,
+      "page_sha256": "f0685cb674a072a8985adb7545f760859dfb5a2596f85f62039f99ffacab8e80"
+    },
+    {
+      "name": "weather_station",
+      "title": "محطة طقس (درايفران)",
+      "desc": "SHT31 + BH1750 معًا في سكريبت واحد: حرارة ورطوبة وضوء ونقطة الندى مع رسم حيّ.",
+      "icon": "🌦️",
+      "category": "sensors",
+      "driver": "sht31",
+      "drivers": [
+        "sht31",
+        "bh1750"
+      ],
+      "file": "weather_station.lua",
+      "size": 911,
+      "sha256": "21587d1b9e43b47d40e745273f91b6c790be2140fb0a3f4db1b6628348249a07",
+      "page_file": "weather_station.html",
+      "page_size": 2698,
+      "page_sha256": "3206660b4a43175538053fa5743fb452597cbaf6bf46984ee4923a03a2efebb6"
+    }
+  ]
+}
