@@ -100,6 +100,8 @@ static bool otaBusy = false;
 struct OtaReq {
   bool active = false;
   bool started = false;
+  bool finished = false;
+  bool sawBytes = false;
   bool fs = false;
   bool fsUnmounted = false;
   bool busyReject = false;
@@ -1155,11 +1157,12 @@ void setupServerWeb() {
     OtaReq* ota = (OtaReq*)request->_tempObject;
     if (!ota) { request->send(400, "application/json", "{\"error\":\"no file\"}"); return; }
     if (ota->busyReject) { request->send(409, "application/json", "{\"error\":\"ota busy\"}"); return; }
-    bool active = ota->active, started = ota->started, unmounted = ota->fsUnmounted;
+    bool active = ota->active, started = ota->started, finished = ota->finished, unmounted = ota->fsUnmounted;
     char err[64]; strlcpy(err, ota->err, sizeof(err));
     ota->active = false;
     if (active) {
-      if (err[0] && unmounted) LittleFS.begin(false);
+      if (started) Update.abort();
+      if (unmounted && (err[0] || !finished)) LittleFS.begin(false);
       portENTER_CRITICAL(&otaMux);
       otaBusy = false;
       portEXIT_CRITICAL(&otaMux);
@@ -1170,7 +1173,7 @@ void setupServerWeb() {
       request->send(500, "application/json", out);
       return;
     }
-    if (!started) { request->send(400, "application/json", "{\"error\":\"no file\"}"); return; }
+    if (!finished) { request->send(400, "application/json", "{\"error\":\"no file\"}"); return; }
     request->send(200, "application/json", "{\"ok\":true}");
     restartPending = true;
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
@@ -1196,7 +1199,7 @@ void setupServerWeb() {
         portEXIT_CRITICAL(&otaMux);
       });
       ota->fs = request->hasParam("type") && request->getParam("type")->value() == "fs";
-      if (!ota->fs && (len == 0 || data[0] != 0xE9)) { strlcpy(ota->err, "not a firmware image", sizeof(ota->err)); return; }
+      if (!ota->fs && len > 0 && data[0] != 0xE9) { strlcpy(ota->err, "not a firmware image", sizeof(ota->err)); return; }
       if (ota->fs) { luaeng_stop_all(); delay(50); LittleFS.end(); ota->fsUnmounted = true; }
       if (!Update.begin(UPDATE_SIZE_UNKNOWN, ota->fs ? U_SPIFFS : U_FLASH)) {
         strlcpy(ota->err, Update.errorString(), sizeof(ota->err));
@@ -1206,14 +1209,31 @@ void setupServerWeb() {
     }
     OtaReq* ota = (OtaReq*)request->_tempObject;
     if (!ota || !ota->active || ota->err[0] || !ota->started) return;
-    if (len > 0 && Update.write(data, len) != len) {
-      strlcpy(ota->err, Update.errorString(), sizeof(ota->err));
-      Update.abort();
-      ota->started = false;
-      return;
+    if (len > 0) {
+      if (!ota->sawBytes) {
+        ota->sawBytes = true;
+        if (!ota->fs && data[0] != 0xE9) {
+          strlcpy(ota->err, "not a firmware image", sizeof(ota->err));
+          Update.abort();
+          ota->started = false;
+          return;
+        }
+      }
+      if (Update.write(data, len) != len) {
+        strlcpy(ota->err, Update.errorString(), sizeof(ota->err));
+        Update.abort();
+        ota->started = false;
+        return;
+      }
     }
     if (final) {
+      if (!ota->sawBytes) {
+        Update.abort();
+        ota->started = false;
+        return;
+      }
       if (!Update.end(true)) strlcpy(ota->err, Update.errorString(), sizeof(ota->err));
+      else ota->finished = true;
       ota->started = false;
     }
   });

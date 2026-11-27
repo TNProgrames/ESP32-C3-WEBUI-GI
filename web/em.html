@@ -641,7 +641,11 @@
             x.upload.onprogress = e => { if (e.lengthComputable) st.innerText = 'OTA: ' + Math.round(e.loaded / e.total * 100) + '%'; };
             x.onload = () => {
                 if (x.status === 200) { st.innerText = T('تم التحديث، يُعاد تشغيل الجهاز...'); setTimeout(() => location.reload(), 12000); }
-                else { notify(T('فشل التحديث: ') + x.responseText, true); inp.value = ''; loadFiles(currentPath); }
+                else {
+                    let err = x.responseText || ('HTTP ' + x.status);
+                    try { err = JSON.parse(x.responseText).error || err; } catch {}
+                    notify(T('فشل التحديث: ') + err, true); inp.value = ''; loadFiles(currentPath);
+                }
             };
             x.onerror = () => { notify(T('انقطع الاتصال'), true); inp.value = ''; };
             const fd = new FormData(); fd.append('file', f, f.name); x.send(fd);
