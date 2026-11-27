@@ -219,7 +219,8 @@ function parseCookies(req) {
 }
 function accessKey() {
   const custom = vfsReadText('/em_key').trim();
-  return custom.length >= 4 ? custom : '1234';
+  if (custom.startsWith('sha256$') || custom.length >= 4) return custom;
+  return '1234';
 }
 function isAdminToken(req) {
   const tok = req.get('user_token') || '';
@@ -685,7 +686,7 @@ app.post('/em/check', rawBody, (req, res) => {
   if (ct.includes('application/x-www-form-urlencoded')) {
     pass = new URLSearchParams(req.body.toString('utf8')).get('pass') || '';
   }
-  if (pass && constTimeEq(pass, accessKey())) {
+  if (pass && verifyPassword(pass, accessKey())) {
     emFails = 0; emLockUntil = 0;
     refreshEmCookie(res);
     return res.sendStatus(200);
@@ -972,35 +973,51 @@ app.post('/settings/save_pin', jsonBody, (req, res) => {
 app.get('/settings/get_pass', (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
   const u = getUsers();
-  res.json({ hasAp: Boolean(u[0]?.password), hasUp: Boolean(u[1]?.password), ap: '', up: '' });
+  res.json({ hasAp: Boolean(u[0]?.password), hasUp: Boolean(u[1]?.password), hasEm: vfsFiles.has('/em_key'), ap: '', up: '', em: '' });
 });
 
 app.post('/settings/save_pass', jsonBody, (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
   const ap = typeof req.body?.ap === 'string' ? req.body.ap : '';
   const up = typeof req.body?.up === 'string' ? req.body.up : '';
-  if (!ap && !up) return res.sendStatus(400);
+  const em = typeof req.body?.em === 'string' ? req.body.em : '';
+  if (!ap && !up && !em) return res.sendStatus(400);
   if (ap.length > 64 || up.length > 64) return res.sendStatus(400);
+  if (em && (em.length < 4 || em.length > 31)) return res.sendStatus(400);
   const u = getUsers();
   if (ap) u[0] = { username: 'admin', password: hashPassword(ap) };
   if (up) u[1] = { username: 'user', password: hashPassword(up) };
-  saveUsers(u);
+  if (ap || up) saveUsers(u);
+  if (em) {
+    vfsWrite('/em_key', hashPassword(em));
+    emSess = crypto.randomBytes(12).toString('hex');
+  }
   res.sendStatus(200);
 });
 
 app.get('/settings/backup', (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
   res.setHeader('Content-Disposition', 'attachment; filename=esp32-backup.json');
-  res.json({ version: 1, settings: JSON.parse(vfsReadText('/settings.json')), users: getUsers(), nets: getNets() });
+  const payload = { version: 1, settings: JSON.parse(vfsReadText('/settings.json')), users: getUsers(), nets: getNets() };
+  const emKey = vfsReadText('/em_key').trim();
+  if (emKey) payload.em_key = emKey;
+  res.json(payload);
 });
 
 app.post('/settings/restore', jsonBody, (req, res) => {
   if (!isAdminToken(req)) return res.sendStatus(401);
-  const { settings, users, nets } = req.body || {};
+  const { settings, users, nets, em_key: emKey } = req.body || {};
   if (!Array.isArray(settings) || settings.length < 1 || !Array.isArray(users) || users.length < 2
       || typeof users[0]?.username !== 'string' || typeof users[0]?.password !== 'string' || !users[0].password
       || typeof users[1]?.username !== 'string' || typeof users[1]?.password !== 'string' || !users[1].password) {
     return res.status(400).json({ error: 'invalid backup' });
+  }
+  if (typeof emKey === 'string' && emKey.trim()) {
+    const k = emKey.trim();
+    if (!k.startsWith('sha256$') && (k.length < 4 || k.length > 31)) {
+      return res.status(400).json({ error: 'invalid backup' });
+    }
+    vfsWrite('/em_key', k.startsWith('sha256$') ? k : hashPassword(k));
   }
   const hashedUsers = users.map((entry, i) => i < 2 ? {
     username: entry.username,

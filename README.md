@@ -113,7 +113,7 @@ docs/            # التوثيق
 |---|---|
 | مستخدم admin | `admin` / `admin123` |
 | مستخدم user | `user` / `user123` |
-| مفتاح الطوارئ `/em` | `1234` (الثابت `access_key` في `main.cpp`) |
+| مفتاح الطوارئ `/em` | `1234` (يمكن تغييره من تبويب **كلمات المرور** أو ملف `/em_key`) |
 | شبكة AP | `ESP32_AP` / `12345678` |
 | شبكة الاسترداد | `RECOVERY_MODE` / `12345678` |
 
@@ -127,9 +127,9 @@ docs/            # التوثيق
 | `/hdusage` | GET | أي رمز صالح |
 | `/settings/get_comm` ، `/settings/get_pin` | GET | أي رمز صالح |
 | `/settings/get_wifi` | GET | admin |
-| `/settings/get_pass` | GET | admin (يعيد حالة التهيئة `hasAp`/`hasUp` دون كلمات المرور) |
+| `/settings/get_pass` | GET | admin (يعيد حالة التهيئة `hasAp`/`hasUp`/`hasEm` دون كلمات المرور) |
 | `/settings/get_stat` ، `/settings/scan_wifi` | GET | عامة |
-| `/settings/save_wifi` ، `save_comm` ، `save_pin` ، `save_pass` | POST | admin (`save_pass` يقبل تحديث كل كلمة مرور على حدة ويعمّيها) |
+| `/settings/save_wifi` ، `save_comm` ، `save_pin` ، `save_pass` | POST | admin (`save_pass` يقبل تحديث `ap` و`up` و`em` كل على حدة ويعمّيها) |
 | `/em/check` ، `/em/logout` | POST | عامة (يتحقق من المفتاح ويمنح/يمسح كوكي الجلسة `HttpOnly`) |
 | `/api/*` (مدير الملفات) | متعددة | رمز admin أو جلسة الطوارئ |
 

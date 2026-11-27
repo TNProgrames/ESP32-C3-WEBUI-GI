@@ -35,7 +35,7 @@ char apwifipass[65] = "12345678";
 char hostname_[33] = "esp32";   // الاسم المحلي: <hostname>.local
 
 // --- Network Settings ---
-char access_key[32] = "1234";     // مفتاح صفحة الطوارئ /em: الافتراضي 1234، ويمكن تغييره بملف /em_key (حتى 31 حرفًا)
+char access_key[97] = "1234";     // مفتاح صفحة الطوارئ /em: الافتراضي 1234، ويمكن تغييره من الواجهة أو ملف /em_key
 static char emSess[33] = "";      // رمز جلسة الطوارئ العشوائي (يُولَّد كل إقلاع) ويوضع في الكوكي بدل المفتاح نفسه
 
 // --- Token Store ---
@@ -691,7 +691,23 @@ void EmSetupAPI() {
         static uint32_t lockUntil = 0;
         uint32_t now = millis();
         if (lockUntil && (int32_t)(now - lockUntil) < 0) { request->send(429); return; }
-        if (request->hasParam("pass", true) && constTimeEq(request->getParam("pass", true)->value().c_str(), access_key)) {
+        char curKey[97] = "1234";
+        {
+            CfgLock _lk;
+            File kf = LittleFS.open("/em_key", "r");
+            if (kf) {
+                String k = kf.readString(); k.trim(); kf.close();
+                if ((k.startsWith("sha256$") && k.length() < sizeof(access_key)) || (k.length() >= 4 && k.length() < 32)) {
+                    portENTER_CRITICAL(&authMux);
+                    strlcpy(access_key, k.c_str(), sizeof(access_key));
+                    portEXIT_CRITICAL(&authMux);
+                }
+            }
+        }
+        portENTER_CRITICAL(&authMux);
+        strlcpy(curKey, access_key, sizeof(curKey));
+        portEXIT_CRITICAL(&authMux);
+        if (request->hasParam("pass", true) && verifyPassword(request->getParam("pass", true)->value().c_str(), curKey)) {
             fails = 0; lockUntil = 0;
             AsyncWebServerResponse *response = request->beginResponse(200);
             refreshSessionEm(response);
@@ -987,8 +1003,10 @@ void setupServerWeb() {
     } else if (type == 3) { // Pass
       const char* ap = doc["ap"].is<const char*>() ? doc["ap"].as<const char*>() : "";
       const char* up = doc["up"].is<const char*>() ? doc["up"].as<const char*>() : "";
-      if (!*ap && !*up) { request->send(400); return; }
+      const char* em = doc["em"].is<const char*>() ? doc["em"].as<const char*>() : "";
+      if (!*ap && !*up && !*em) { request->send(400); return; }
       if ((*ap && strlen(ap) > 64) || (*up && strlen(up) > 64)) { request->send(400); return; }
+      if (*em && (strlen(em) < 4 || strlen(em) > 31)) { request->send(400); return; }
       CfgLock _lk;
       if (*ap) {
         char hp[97];
@@ -1001,6 +1019,19 @@ void setupServerWeb() {
         if (!hashPassword(up, hp, sizeof(hp)) || !updateOrCreateJson("/users.json", "1_Obj.password", hp)) {
           request->send(500); return;
         }
+      }
+      if (*em) {
+        char hk[97];
+        if (!hashPassword(em, hk, sizeof(hk))) { request->send(500); return; }
+        File kf = LittleFS.open("/em_key", "w");
+        if (!kf) { request->send(500); return; }
+        size_t wk = kf.print(hk);
+        kf.close();
+        if (wk == 0) { request->send(500); return; }
+        portENTER_CRITICAL(&authMux);
+        strlcpy(access_key, hk, sizeof(access_key));
+        generateToken(emSess, sizeof(emSess));
+        portEXIT_CRITICAL(&authMux);
       }
     }
     request->send(200);
@@ -1095,7 +1126,9 @@ void setupServerWeb() {
         char ap[97] = "", up[97] = "";
         bool hasAp = getJson("/users.json", "0_Obj.password", ap, sizeof(ap)) && ap[0] != '\0';
         bool hasUp = getJson("/users.json", "1_Obj.password", up, sizeof(up)) && up[0] != '\0';
-        JsonDocument d; d["hasAp"] = hasAp; d["hasUp"] = hasUp; d["ap"] = ""; d["up"] = "";
+        bool hasEm = LittleFS.exists("/em_key");
+        JsonDocument d; d["hasAp"] = hasAp; d["hasUp"] = hasUp; d["hasEm"] = hasEm;
+        d["ap"] = ""; d["up"] = ""; d["em"] = "";
         String res; serializeJson(d, res);
         request->send(200, "application/json", res);
     } else { request->send(401); }
@@ -1205,6 +1238,11 @@ void setupServerWeb() {
         if (!deserializeJson(netDoc, f) && netDoc.is<JsonArray>()) doc["nets"] = netDoc;
         f.close();
       }
+      f = LittleFS.open("/em_key", "r");
+      if (f) {
+        String k = f.readString(); k.trim(); f.close();
+        if (k.length()) doc["em_key"] = k;
+      }
     }
     String out; serializeJson(doc, out);
     AsyncWebServerResponse *response = request->beginResponse(200, "application/json", out);
@@ -1261,6 +1299,21 @@ void setupServerWeb() {
         if (nf) { serializeJson(nd, nf); nf.close(); }
       } else if (LittleFS.exists(NETS_FILE)) {
         LittleFS.remove(NETS_FILE);
+      }
+      if (doc["em_key"].is<const char*>()) {
+        const char* ek = doc["em_key"].as<const char*>();
+        if (*ek) {
+          char hk[97] = "";
+          const char* toWrite = ek;
+          if (strncmp(ek, "sha256$", 7) != 0) {
+            if (strlen(ek) < 4 || strlen(ek) > 31 || !hashPassword(ek, hk, sizeof(hk))) {
+              request->send(400, "application/json", "{\"error\":\"invalid backup\"}"); return;
+            }
+            toWrite = hk;
+          }
+          File kf = LittleFS.open("/em_key", "w");
+          if (kf) { kf.print(toWrite); kf.close(); }
+        }
       }
     }
 
@@ -1500,7 +1553,12 @@ void setup() {
   generateToken(emSess, sizeof(emSess));
   if (LittleFS.begin(true)) {                      // مفتاح الطوارئ المخصص (اختياري)
     File kf = LittleFS.open("/em_key", "r");
-    if (kf) { String k = kf.readString(); k.trim(); if (k.length() >= 4 && k.length() < sizeof(access_key)) strlcpy(access_key, k.c_str(), sizeof(access_key)); kf.close(); }
+    if (kf) {
+      String k = kf.readString(); k.trim(); kf.close();
+      if ((k.startsWith("sha256$") && k.length() < sizeof(access_key)) || (k.length() >= 4 && k.length() < 32)) {
+        strlcpy(access_key, k.c_str(), sizeof(access_key));
+      }
+    }
   }
   loadsetting();
   EmSetupAPI();

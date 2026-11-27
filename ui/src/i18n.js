@@ -79,6 +79,9 @@ export const en = {
   'رقم PIN لإعادة الضبط': 'Reset PIN (GPIO number)', 'حفظ': 'Save', 'تم الحفظ': 'Saved',
   // Passwords
   'كلمة مرور admin': 'Admin password', 'كلمة مرور user': 'User password',
+  'كلمة مرور صفحة الطوارئ (/em)': 'Emergency page password (/em)',
+  '4 أحرف على الأقل (اتركها فارغة للإبقاء)': 'Min 4 chars (leave blank to keep)',
+  'كلمة مرور الطوارئ بين 4 و 31 حرفًا': 'Emergency password must be 4–31 characters',
   'أدخل كلمة مرور واحدة على الأقل': 'Enter at least one password',
   'كلمة مرور جديدة (اتركها فارغة للإبقاء)': 'New password (leave blank to keep)',
   'تُخزَّن كلمات المرور معمّاة ولا يمكن استرجاعها؛ اترك الحقل فارغًا للإبقاء على كلمة المرور الحالية.':
